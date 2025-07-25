@@ -18,7 +18,6 @@ const closestMultiple = (number: number, multiple: number) => {
 export default function Tile({
   gridPos,
   letter = "A",
-  // startPos = { x: 100, y: 100 },
   startingAbsolutePos = { x: 100, y: 100 },
   size = 50,
 }: props) {
@@ -56,6 +55,7 @@ export default function Tile({
         });
       }
     };
+
     const handleMouseUp = () => {
       setIsDragging(false);
       // snap to grid
@@ -64,8 +64,17 @@ export default function Tile({
         y: closestMultiple(absolutePosition.y, size),
       };
 
-      setAbsolutePosition(newAbsolutePosition);
-      // moveTile(startingAbsolutePos, newAbsolutePosition);
+      // Only move if position actually changed
+      if (
+        newAbsolutePosition.x !== startingAbsolutePos.x ||
+        newAbsolutePosition.y !== startingAbsolutePos.y
+      ) {
+        // Update absolute position first
+        setAbsolutePosition(newAbsolutePosition);
+
+        // Then update game state
+        moveTile(startingAbsolutePos, newAbsolutePosition);
+      }
     };
     document.addEventListener("mousemove", handleDrag);
     document.addEventListener("mouseup", handleMouseUp);
@@ -74,22 +83,13 @@ export default function Tile({
       document.removeEventListener("mousemove", handleDrag);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [
-    absolutePosition.x,
-    absolutePosition.y,
-    isDragging,
-    letter,
-    moveTile,
-    size,
-    startingAbsolutePos,
-  ]);
+  }, [isDragging, moveTile, size, startingAbsolutePos, absolutePosition]);
 
   return (
     <div
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) {
-          setIsDragging(true);
-        }
+        e.stopPropagation(); // Add this to prevent grid dragging
+        setIsDragging(true);
       }}
       style={{
         position: "absolute",
@@ -98,7 +98,7 @@ export default function Tile({
         height: size,
         width: size,
       }}
-      className={`bg-amber-300 rounded-xl flex justify-center items-center z-50 cursor-grab active:cursor-grabbing`}
+      className={`bg-amber-300 rounded-xl flex justify-center items-center z-50 cursor-grab active:cursor-grabbing select-none`}
     >
       {letter}
       {absolutePosition.x},{absolutePosition.y}

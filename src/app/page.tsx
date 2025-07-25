@@ -1,6 +1,5 @@
 "use client";
 import InfiniteGrid from "@/_components/grid";
-import gameState from "@/_components/context";
 import GameStateContext from "@/_components/context";
 import { useState } from "react";
 import { position } from "@/types";
@@ -14,20 +13,31 @@ export default function Home() {
     const oldPosString = `${oldPos.x / 50},${oldPos.y / 50}`;
     const newPosString = `${newPos.x / 50},${newPos.y / 50}`;
 
+    if (newPosString === oldPosString) return;
+
     const let1 = state[oldPosString];
-    const let2 = state[newPosString];
 
     if (newPosString in state) {
-      // swap tiles if new position is taken
+      const let2 = state[newPosString];
+      console.log(
+        `Swapping ${let1} at ${oldPosString} with ${let2} at ${newPosString}`
+      );
 
+      // swap tiles if new position is taken
       setState((prev) => {
-        return { ...prev, oldPosString: let2, newPosString: let1 };
+        const newState = { ...prev };
+        newState[oldPosString] = let2;
+        newState[newPosString] = let1;
+        return newState;
       });
     } else {
       //update new position and delete old
+      console.log(`Moving ${let1} from ${oldPosString} to ${newPosString}`);
       setState((prev) => {
-        delete prev[oldPosString];
-        return { ...prev, newPosString: let1 };
+        const newState = { ...prev };
+        delete newState[oldPosString];
+        newState[newPosString] = let1;
+        return newState;
       });
     }
   };

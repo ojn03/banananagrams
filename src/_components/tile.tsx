@@ -34,6 +34,13 @@ export default function Tile({
   });
 
   const [isDragging, setIsDragging] = useState(false);
+  const [dragStartPos, setDragStartPos] = useState<position>(startingAbsolutePos);
+
+  // // Update absolute position when startingAbsolutePos changes (after a swap)
+  useEffect(() => {
+    setAbsolutePosition(startingAbsolutePos);
+    setDragStartPos(startingAbsolutePos);
+  }, [startingAbsolutePos]);
 
   // maintain the absolute position when panning the grid
   useEffect(() => {
@@ -57,7 +64,9 @@ export default function Tile({
     };
 
     const handleMouseUp = () => {
+      if (!isDragging) return;
       setIsDragging(false);
+      
       // snap to grid
       const newAbsolutePosition = {
         x: closestMultiple(absolutePosition.x, size),
@@ -66,16 +75,20 @@ export default function Tile({
 
       // Only move if position actually changed
       if (
-        newAbsolutePosition.x !== startingAbsolutePos.x ||
-        newAbsolutePosition.y !== startingAbsolutePos.y
+        newAbsolutePosition.x !== dragStartPos.x ||
+        newAbsolutePosition.y !== dragStartPos.y
       ) {
         // Update absolute position first
         setAbsolutePosition(newAbsolutePosition);
 
         // Then update game state
-        moveTile(startingAbsolutePos, newAbsolutePosition);
+        moveTile(dragStartPos, newAbsolutePosition);
+      } else {
+        // Snap back to original position if no movement
+        setAbsolutePosition(dragStartPos);
       }
     };
+    
     document.addEventListener("mousemove", handleDrag);
     document.addEventListener("mouseup", handleMouseUp);
 
@@ -83,12 +96,12 @@ export default function Tile({
       document.removeEventListener("mousemove", handleDrag);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, moveTile, size, startingAbsolutePos, absolutePosition]);
+  }, [isDragging, moveTile, size, dragStartPos, absolutePosition]);
 
   return (
     <div
-      onMouseDown={(e) => {
-        e.stopPropagation(); // Add this to prevent grid dragging
+      onMouseDown={() => {
+        setDragStartPos(absolutePosition);
         setIsDragging(true);
       }}
       style={{

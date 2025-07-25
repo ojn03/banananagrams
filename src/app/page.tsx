@@ -10,41 +10,32 @@ export default function Home() {
     "1,1": "B",
   }); //TODO move to a subcomponent
   const moveTile = (oldPos: position, newPos: position) => {
-    const oldPosString = `${oldPos.x / 50},${oldPos.y / 50}`;
-    const newPosString = `${newPos.x / 50},${newPos.y / 50}`;
+    const prevPositionString = `${oldPos.x / 50},${oldPos.y / 50}`;
+    const targetPositionString = `${newPos.x / 50},${newPos.y / 50}`;
 
-    if (newPosString === oldPosString) return;
+    if (targetPositionString === prevPositionString) return;
 
-    const let1 = state[oldPosString];
+    setState((prev) => {
+      const newState = { ...prev };
 
-    if (newPosString in state) {
-      const let2 = state[newPosString];
-      console.log(
-        `Swapping ${let1} at ${oldPosString} with ${let2} at ${newPosString}`
-      );
+      if (targetPositionString in newState) {
+        // Target position is occupied, swap the tiles
+        const temp = newState[prevPositionString];
+        newState[prevPositionString] = newState[targetPositionString];
+        newState[targetPositionString] = temp;
+      } else {
+        // Target position is empty, just move the tile
+        newState[targetPositionString] = newState[prevPositionString];
+        delete newState[prevPositionString];
+      }
 
-      // swap tiles if new position is taken
-      setState((prev) => {
-        const newState = { ...prev };
-        newState[oldPosString] = let2;
-        newState[newPosString] = let1;
-        return newState;
-      });
-    } else {
-      //update new position and delete old
-      console.log(`Moving ${let1} from ${oldPosString} to ${newPosString}`);
-      setState((prev) => {
-        const newState = { ...prev };
-        delete newState[oldPosString];
-        newState[newPosString] = let1;
-        return newState;
-      });
-    }
+      return newState;
+    });
   };
 
   return (
     <div className="h-screen w-screen overflow-hidden">
-      <GameStateContext.Provider value={{ state: state, moveTile }}>
+      <GameStateContext.Provider value={{ state, moveTile }}>
         <InfiniteGrid />
       </GameStateContext.Provider>
     </div>

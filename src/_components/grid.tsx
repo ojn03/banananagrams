@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import Letter from "./letter";
+import useGameStateContext from "@/hooks/gameState";
+import Tile from "./tile";
 import { position } from "@/types";
 
 export default function InfiniteGrid() {
+  const { state } = useGameStateContext();
   const space = 50;
   const [windowH, setWindowH] = useState<number>(0);
   const [windowW, setWindowW] = useState<number>(0);
@@ -56,6 +58,21 @@ export default function InfiniteGrid() {
     );
   }
 
+  const tiles = [];
+
+  for (const key in state) {
+    const [x, y] = key.split(",");
+    const tile = (
+      <Tile
+        gridPos={pos}
+        startingAbsolutePos={{ x: Number(x) * space, y: Number(y) * space }}
+        letter={state[key]}
+        key={key}
+      />
+    );
+    tiles.push(tile);
+  }
+
   //enable panning the grid
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -89,7 +106,7 @@ export default function InfiniteGrid() {
     >
       {horizontalLines}
       {verticalLines}
-      <Letter gridPos={pos} size={space} />
+      {tiles}
       <div className="fixed top-1 left-1">
         {pos.x},{pos.y}
       </div>

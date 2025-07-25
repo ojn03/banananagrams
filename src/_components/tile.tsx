@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { position } from "@/types";
+import useGameStateContext from "@/hooks/gameState";
 
 interface props {
-	// the current position of the grid
+  // the current position of the grid
   gridPos: position;
   letter?: string;
-  startPos?: position;
+  startingAbsolutePos?: position;
   size?: number;
 }
 
@@ -14,21 +15,25 @@ const closestMultiple = (number: number, multiple: number) => {
   return Math.round(number / multiple) * multiple;
 };
 
-export default function Letter({
+export default function Tile({
   gridPos,
   letter = "A",
-  startPos = { x: 100, y: 100 },
+  // startPos = { x: 100, y: 100 },
+  startingAbsolutePos = { x: 100, y: 100 },
   size = 50,
 }: props) {
+  const { moveTile } = useGameStateContext();
 
-	// the position of this letter relative to the screen
-  const [screenPos, setScreenPos] = useState<position>(startPos);
+  // the absolute position of this letter (i.e. relative to the infinite grid)
+  const [absolutePosition, setAbsolutePosition] =
+    useState<position>(startingAbsolutePos);
 
-	// the absolute position of this letter (i.e. relative to the infinite grid)
-  const [absolutePosition, setAbsolutePosition] = useState<position>({
-    x: gridPos.x + screenPos.x,
-    y: gridPos.y + screenPos.y,
+  // the position of this tile relative to the screen
+  const [screenPos, setScreenPos] = useState<position>({
+    x: absolutePosition.x - gridPos.x,
+    y: absolutePosition.y - gridPos.y,
   });
+
   const [isDragging, setIsDragging] = useState(false);
 
   // maintain the absolute position when panning the grid
@@ -54,10 +59,13 @@ export default function Letter({
     const handleMouseUp = () => {
       setIsDragging(false);
       // snap to grid
-      setAbsolutePosition((prev) => ({
-        x: closestMultiple(prev.x, size),
-        y: closestMultiple(prev.y, size),
-      }));
+      const newAbsolutePosition = {
+        x: closestMultiple(absolutePosition.x, size),
+        y: closestMultiple(absolutePosition.y, size),
+      };
+
+      setAbsolutePosition(newAbsolutePosition);
+      // moveTile(startingAbsolutePos, newAbsolutePosition);
     };
     document.addEventListener("mousemove", handleDrag);
     document.addEventListener("mouseup", handleMouseUp);
@@ -66,15 +74,25 @@ export default function Letter({
       document.removeEventListener("mousemove", handleDrag);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, size]);
+  }, [
+    absolutePosition.x,
+    absolutePosition.y,
+    isDragging,
+    letter,
+    moveTile,
+    size,
+    startingAbsolutePos,
+  ]);
 
   return (
     <div
       onMouseDown={(e) => {
-        setIsDragging(true);
+        if (e.target === e.currentTarget) {
+          setIsDragging(true);
+        }
       }}
       style={{
-        position: "relative",
+        position: "absolute",
         top: screenPos.y,
         left: screenPos.x,
         height: size,

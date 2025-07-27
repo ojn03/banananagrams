@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { position } from "@/types";
 import useGameStateContext from "@/hooks/gameState";
+import { closestMultiple } from "@/utils";
 
 interface props {
   // the current position of the grid
@@ -10,10 +11,6 @@ interface props {
   startingAbsolutePos?: position;
   size?: number;
 }
-
-const closestMultiple = (number: number, multiple: number) => {
-  return Math.round(number / multiple) * multiple;
-};
 
 export default function Tile({
   gridPos,
@@ -36,7 +33,7 @@ export default function Tile({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartPos, setDragStartPos] = useState<position>(startingAbsolutePos);
 
-  // // Update absolute position when startingAbsolutePos changes (after a swap)
+  // Update absolute position when startingAbsolutePos changes (after a swap)
   useEffect(() => {
     setAbsolutePosition(startingAbsolutePos);
     setDragStartPos(startingAbsolutePos);
@@ -111,7 +108,7 @@ export default function Tile({
         height: size,
         width: size,
       }}
-      className={`bg-amber-300 rounded-xl flex justify-center items-center z-50 cursor-grab active:cursor-grabbing select-none`}
+      className={`bg-amber-300 rounded-xl flex justify-center items-center z-50 cursor-pointer select-none`}
     >
       {letter}
       {absolutePosition.x},{absolutePosition.y}

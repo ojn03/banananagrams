@@ -5,8 +5,7 @@ import Tile from "./tile";
 import { position } from "@/types";
 
 export default function InfiniteGrid() {
-  const { state } = useGameStateContext();
-  const space = 50;
+  const { state, spacing } = useGameStateContext();
   const [windowH, setWindowH] = useState<number>(0);
   const [windowW, setWindowW] = useState<number>(0);
 
@@ -25,7 +24,7 @@ export default function InfiniteGrid() {
   // Generate horizontal lines separated by 100px
   // TODO use canvas instead to draw lines
   const horizontalLines = [];
-  for (let y = pos.y % space; y < windowH; y += space) {
+  for (let y = pos.y % spacing; y < windowH; y += spacing) {
     horizontalLines.push(
       <div
         key={y}
@@ -42,7 +41,7 @@ export default function InfiniteGrid() {
   }
 
   const verticalLines = [];
-  for (let x = pos.x % space; x < windowW; x += space) {
+  for (let x = pos.x % spacing; x < windowW; x += spacing) {
     verticalLines.push(
       <div
         key={x}
@@ -65,9 +64,10 @@ export default function InfiniteGrid() {
     const tile = (
       <Tile
         gridPos={pos}
-        startingAbsolutePos={{ x: Number(x) * space, y: Number(y) * space }}
+        startingAbsolutePos={{ x: Number(x) * spacing, y: Number(y) * spacing }}
         letter={state[key]}
         key={key}
+        size={spacing}
       />
     );
     tiles.push(tile);
@@ -102,12 +102,12 @@ export default function InfiniteGrid() {
           setIsDragging(true);
         }
       }}
-      className="h-full w-full bg-white text-black absolute"
+      className="h-full w-full bg-white text-black absolute cursor-grab active:cursor-grabbing"
     >
       {horizontalLines}
       {verticalLines}
       {tiles}
-      <div className="fixed top-1 left-1">
+      <div className="fixed top-1 left-1 select-none">
         {pos.x},{pos.y}
       </div>
     </div>

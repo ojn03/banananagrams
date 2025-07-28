@@ -3,9 +3,17 @@ import { useEffect, useState } from "react";
 import useGameStateContext from "@/hooks/gameState";
 import Tile from "./tile";
 import { position } from "@/types";
+import { validateState } from "@/utils";
 
-export default function InfiniteGrid() {
+export default function InfiniteGrid({
+  dictionary,
+}: {
+  dictionary: Set<string>;
+}) {
   const { state, spacing } = useGameStateContext();
+
+  validateState(state, dictionary);
+
   const [windowH, setWindowH] = useState<number>(0);
   const [windowW, setWindowW] = useState<number>(0);
 
@@ -65,7 +73,7 @@ export default function InfiniteGrid() {
       <Tile
         gridPos={pos}
         startingAbsolutePos={{ x: Number(x) * spacing, y: Number(y) * spacing }}
-        letter={state[key]}
+        info={state[key]}
         key={key}
         size={spacing}
       />

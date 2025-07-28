@@ -1,12 +1,11 @@
 "use client";
 
-import { position } from "@/types";
+import { position, tileInfo } from "@/types";
 import { createContext, ReactNode, useState } from "react";
 
 interface gameStateContextType {
-  state: Record<string, string>;
+  state: Record<string, tileInfo>;
   spacing: number;
-  
   moveTile: (oldPos: position, newPos: position) => void;
   // addTile: (pos: position) => void;
 }
@@ -18,9 +17,35 @@ export const GameStateContext = createContext<gameStateContextType | null>(
 const TileProvider = ({ children }: { children: ReactNode }) => {
   const spacing = 75;
 
-  const [state, setState] = useState<Record<string, string>>({
-    "2,2": "A",
-    "1,1": "B",
+  const [state, setState] = useState<Record<string, tileInfo>>({
+    "2,2": {
+      letter: "A",
+      valid: {
+        vertical: true,
+        horizontal: true,
+      },
+    },
+    "1,1": {
+      letter: "B",
+      valid: {
+        vertical: true,
+        horizontal: true,
+      },
+    },
+    "3,3": {
+      letter: "B",
+      valid: {
+        vertical: true,
+        horizontal: true,
+      },
+    },
+    "0,0": {
+      letter: "X",
+      valid: {
+        vertical: true,
+        horizontal: true,
+      },
+    },
   });
 
   const moveTile = (oldPos: position, newPos: position) => {

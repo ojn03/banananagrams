@@ -1,20 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
-import { position } from "@/types";
+import { position, tileInfo } from "@/types";
 import useGameStateContext from "@/hooks/gameState";
 import { closestMultiple } from "@/utils";
 
 interface props {
   // the current position of the grid
   gridPos: position;
-  letter?: string;
+  info: tileInfo;
   startingAbsolutePos?: position;
   size?: number;
 }
 
+//TODO move useEffects to grid component
+
 export default function Tile({
   gridPos,
-  letter = "A",
+  info,
   startingAbsolutePos = { x: 100, y: 100 },
   size = 50,
 }: props) {
@@ -31,7 +33,8 @@ export default function Tile({
   });
 
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStartPos, setDragStartPos] = useState<position>(startingAbsolutePos);
+  const [dragStartPos, setDragStartPos] =
+    useState<position>(startingAbsolutePos);
 
   // Update absolute position when startingAbsolutePos changes (after a swap)
   useEffect(() => {
@@ -63,7 +66,7 @@ export default function Tile({
     const handleMouseUp = () => {
       if (!isDragging) return;
       setIsDragging(false);
-      
+
       // snap to grid
       const newAbsolutePosition = {
         x: closestMultiple(absolutePosition.x, size),
@@ -85,7 +88,7 @@ export default function Tile({
         setAbsolutePosition(dragStartPos);
       }
     };
-    
+
     document.addEventListener("mousemove", handleDrag);
     document.addEventListener("mouseup", handleMouseUp);
 
@@ -94,6 +97,11 @@ export default function Tile({
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging, moveTile, size, dragStartPos, absolutePosition]);
+
+  const color =
+    info.valid.horizontal || info.valid.vertical
+      ? "bg-emerald-300"
+      : "bg-gray-400";
 
   return (
     <div
@@ -108,9 +116,10 @@ export default function Tile({
         height: size,
         width: size,
       }}
-      className={`bg-amber-300 rounded-xl flex justify-center items-center z-50 cursor-pointer select-none`}
+      className={`rounded-xl flex justify-center items-center z-50 cursor-pointer select-none hover:scale-105 ${color}`}
     >
-      {letter}
+      {info.letter}{" "}
+      {`V: ${info.valid.vertical}\n H: ${info.valid.horizontal}\n`}
       {absolutePosition.x},{absolutePosition.y}
     </div>
   );

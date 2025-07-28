@@ -1,14 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useRef } from "react";
 import { position, tileInfo } from "@/types";
 import useGameStateContext from "@/hooks/gameState";
-import { closestMultiple } from "@/utils";
 
 interface props {
   // the current position of the grid
   gridPos: position;
   info: tileInfo;
-  startingAbsolutePos?: position;
+  absolutePosition?: position;
   size?: number;
 }
 
@@ -17,86 +16,37 @@ interface props {
 export default function Tile({
   gridPos,
   info,
-  startingAbsolutePos = { x: 100, y: 100 },
+  absolutePosition = { x: 100, y: 100 },
   size = 50,
 }: props) {
   const { moveTile } = useGameStateContext();
+  const dragRef = useRef<HTMLDivElement>(null);
 
-  // the absolute position of this letter (i.e. relative to the infinite grid)
-  const [absolutePosition, setAbsolutePosition] =
-    useState<position>(startingAbsolutePos);
+  const screenPos = {
+    x: absolutePosition.x + gridPos.x,
+    y: absolutePosition.y + gridPos.y,
+  };
 
-  // the position of this tile relative to the screen
-  const [screenPos, setScreenPos] = useState<position>({
-    x: absolutePosition.x - gridPos.x,
-    y: absolutePosition.y - gridPos.y,
-  });
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    const x = absolutePosition.x;
+    const y = absolutePosition.y;
+    e.dataTransfer.setData("text/plain", `${x},${y},${e.clientX},${e.clientY}`);
+    e.dataTransfer.effectAllowed = 'move'
+    if (dragRef.current) {
+      dragRef.current.style.opacity = "0.5";
+    }
+  };
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartPos, setDragStartPos] =
-    useState<position>(startingAbsolutePos);
+  const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const oldPosString = e.dataTransfer.getData("text/plain");
 
-  // Update absolute position when startingAbsolutePos changes (after a swap)
-  useEffect(() => {
-    setAbsolutePosition(startingAbsolutePos);
-    setDragStartPos(startingAbsolutePos);
-  }, [startingAbsolutePos]);
+    const [x, y, ,] = oldPosString.split(",").map(Number);
 
-  // maintain the absolute position when panning the grid
-  useEffect(() => {
-    setScreenPos({
-      x: absolutePosition.x + gridPos.x,
-      y: absolutePosition.y + gridPos.y,
-    });
-  }, [gridPos, absolutePosition]);
+    const oldPos = { x, y };
 
-  // enable dragging the letter around
-  useEffect(() => {
-    const handleDrag = (event: MouseEvent) => {
-      if (isDragging) {
-        setScreenPos((prev) => {
-          return { x: prev.x + event.movementX, y: prev.y + event.movementY };
-        });
-        setAbsolutePosition((prev) => {
-          return { x: prev.x + event.movementX, y: prev.y + event.movementY };
-        });
-      }
-    };
-
-    const handleMouseUp = () => {
-      if (!isDragging) return;
-      setIsDragging(false);
-
-      // snap to grid
-      const newAbsolutePosition = {
-        x: closestMultiple(absolutePosition.x, size),
-        y: closestMultiple(absolutePosition.y, size),
-      };
-
-      // Only move if position actually changed
-      if (
-        newAbsolutePosition.x !== dragStartPos.x ||
-        newAbsolutePosition.y !== dragStartPos.y
-      ) {
-        // Update absolute position first
-        setAbsolutePosition(newAbsolutePosition);
-
-        // Then update game state
-        moveTile(dragStartPos, newAbsolutePosition);
-      } else {
-        // Snap back to original position if no movement
-        setAbsolutePosition(dragStartPos);
-      }
-    };
-
-    document.addEventListener("mousemove", handleDrag);
-    document.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      document.removeEventListener("mousemove", handleDrag);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging, moveTile, size, dragStartPos, absolutePosition]);
+    moveTile(oldPos, absolutePosition);
+  };
 
   const color =
     info.valid.horizontal || info.valid.vertical
@@ -105,9 +55,13 @@ export default function Tile({
 
   return (
     <div
-      onMouseDown={() => {
-        setDragStartPos(absolutePosition);
-        setIsDragging(true);
+      ref={dragRef}
+      draggable
+      onDragStart={handleDragStart}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={handleDragDrop}
+      onDragEnd={() => {
+        if (dragRef.current) dragRef.current.style.opacity = "1";
       }}
       style={{
         position: "absolute",
@@ -118,9 +72,9 @@ export default function Tile({
       }}
       className={`rounded-xl flex justify-center items-center z-50 cursor-pointer select-none hover:scale-105 ${color}`}
     >
-      {info.letter}{" "}
+      {info.letter}
       {`V: ${info.valid.vertical}\n H: ${info.valid.horizontal}\n`}
-      {absolutePosition.x},{absolutePosition.y}
+      {screenPos.x},{screenPos.y}
     </div>
   );
 }

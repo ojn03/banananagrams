@@ -18,25 +18,22 @@ export function validateState(
   });
 
   Object.keys(state).forEach((posString: string) => {
-    const [x, y] = posString.split(",");
-
-    const intx = Number(x);
-    const inty = Number(y);
+    const [x, y] = posString.split(",").map(Number);
 
     //retrieve all tiles that start a word vertically
     // if word is valid, mark each tile as valid vertical
-    if (!state[`${intx},${inty - 1}`] && state[`${intx},${inty + 1}`]) {
+    if (!state[`${x},${y - 1}`] && state[`${x},${y + 1}`]) {
       state[posString].valid.vertical = down(
-        `${intx},${inty + 1}`,
+        `${x},${y + 1}`,
         state[posString].letter
       );
     }
 
     //retrieve all points that start a word horizontally
     // if word is valid, mark each tile as valid horizontal
-    if (!state[`${intx - 1},${inty}`] && state[`${intx + 1},${inty}`]) {
+    if (!state[`${x - 1},${y}`] && state[`${x + 1},${y}`]) {
       state[posString].valid.horizontal = right(
-        `${intx + 1},${inty}`,
+        `${x + 1},${y}`,
         state[posString].letter
       );
     }
@@ -44,10 +41,10 @@ export function validateState(
     // retrieve all letters without neighbors
     // mark them as invalid both ways
     if (
-      !state[`${intx - 1},${inty}`] &&
-      !state[`${intx + 1},${inty}`] &&
-      !state[`${intx},${inty - 1}`] &&
-      !state[`${intx},${inty + 1}`]
+      !state[`${x - 1},${y}`] &&
+      !state[`${x + 1},${y}`] &&
+      !state[`${x},${y - 1}`] &&
+      !state[`${x},${y + 1}`]
     ) {
       state[posString].valid = {
         vertical: false,
@@ -62,8 +59,8 @@ export function validateState(
       return ret;
     }
 
-    const [x, y] = posString.split(",");
-    const nextPos = `${x},${Number(y) + 1}`;
+    const [x, y] = posString.split(",").map(Number);
+    const nextPos = `${x},${y + 1}`;
 
     const isValidDown = down(nextPos, currentWord + state[posString].letter);
     state[posString].valid.vertical = isValidDown;
@@ -76,8 +73,8 @@ export function validateState(
       return ret;
     }
 
-    const [x, y] = posString.split(",");
-    const nextPos = `${Number(x) + 1},${y}`;
+    const [x, y] = posString.split(",").map(Number);
+    const nextPos = `${x + 1},${y}`;
 
     const isValidRight = right(nextPos, currentWord + state[posString].letter);
     state[posString].valid.horizontal = isValidRight;

@@ -3,36 +3,30 @@ import { useEffect, useState } from "react";
 import useGameStateContext from "@/hooks/gameState";
 import Tile from "./tile";
 import { position } from "@/types";
-import { validateState } from "@/utils";
+import { closestMultiple, validateState } from "@/utils";
 
 export default function InfiniteGrid({
   dictionary,
 }: {
   dictionary: Set<string>;
 }) {
-  const { state, spacing } = useGameStateContext();
+  const { state, spacing, moveTile } = useGameStateContext();
 
   validateState(state, dictionary);
 
-  const [windowH, setWindowH] = useState<number>(0);
-  const [windowW, setWindowW] = useState<number>(0);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   const [pos, setPos] = useState<position>({ x: 0, y: 0 }); // grid pos
 
   const [isDragging, setIsDragging] = useState(false);
   useEffect(() => {
-    setWindowH(window.screen.height);
-    setWindowW(window.screen.width);
+    setWindowSize({ width: window.screen.width, height: window.screen.height });
   }, []);
-
-  useEffect(() => {
-    if (!isDragging) return;
-  });
 
   // Generate horizontal lines separated by 100px
   // TODO use canvas instead to draw lines
   const horizontalLines = [];
-  for (let y = pos.y % spacing; y < windowH; y += spacing) {
+  for (let y = pos.y % spacing; y < windowSize.height; y += spacing) {
     horizontalLines.push(
       <div
         key={y}
@@ -49,7 +43,7 @@ export default function InfiniteGrid({
   }
 
   const verticalLines = [];
-  for (let x = pos.x % spacing; x < windowW; x += spacing) {
+  for (let x = pos.x % spacing; x < windowSize.width; x += spacing) {
     verticalLines.push(
       <div
         key={x}
@@ -67,12 +61,33 @@ export default function InfiniteGrid({
 
   const tiles = [];
 
+  const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const oldPosString = e.dataTransfer.getData("text/plain");
+    const [oldX, oldY, oldMouseX, oldMouseY] = oldPosString
+      .split(",")
+      .map(Number);
+
+    const oldPos = { x: oldX, y: oldY };
+
+    // Calculate new position from mouse coordinates
+    const mouseMoveX = e.clientX - oldMouseX;
+    const mouseMoveY = e.clientY - oldMouseY;
+
+    const newPos = {
+      x: closestMultiple(oldX + mouseMoveX, spacing),
+      y: closestMultiple(oldY + mouseMoveY, spacing),
+    };
+
+    moveTile(oldPos, newPos);
+  };
+
   for (const key in state) {
-    const [x, y] = key.split(",");
+    const [x, y] = key.split(",").map(Number);
     const tile = (
       <Tile
         gridPos={pos}
-        startingAbsolutePos={{ x: Number(x) * spacing, y: Number(y) * spacing }}
+        absolutePosition={{ x: x * spacing, y: y * spacing }}
         info={state[key]}
         key={key}
         size={spacing}
@@ -104,6 +119,8 @@ export default function InfiniteGrid({
 
   return (
     <div
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={handleDragDrop}
       onMouseDown={(e) => {
         // Only start grid dragging if we clicked on the container itself
         if (e.target === e.currentTarget) {

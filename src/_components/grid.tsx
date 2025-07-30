@@ -31,7 +31,7 @@ export default function InfiniteGrid({
       <div
         key={y}
         style={{
-          position: "fixed",
+          position: "absolute",
           top: y,
           left: 0,
           width: "100%",
@@ -48,7 +48,7 @@ export default function InfiniteGrid({
       <div
         key={x}
         style={{
-          position: "fixed",
+          position: "absolute",
           top: 0,
           left: x,
           width: 1,
@@ -127,7 +127,7 @@ export default function InfiniteGrid({
           setIsDragging(true);
         }
       }}
-      className="h-full w-full bg-white text-black absolute cursor-grab active:cursor-grabbing"
+      className="h-full w-full bg-white text-black relative cursor-grab active:cursor-grabbing"
     >
       {horizontalLines}
       {verticalLines}

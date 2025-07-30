@@ -70,11 +70,9 @@ export default function Tile({
         height: size,
         width: size,
       }}
-      className={`rounded-xl flex justify-center items-center z-50 cursor-pointer select-none hover:scale-105 ${color}`}
+      className={`rounded-xl flex justify-center items-center cursor-pointer select-none hover:scale-105 ${color}`}
     >
       {info.letter}
-      {`V: ${info.valid.vertical}\n H: ${info.valid.horizontal}\n`}
-      {screenPos.x},{screenPos.y}
     </div>
   );
 }

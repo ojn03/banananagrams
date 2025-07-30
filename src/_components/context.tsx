@@ -2,9 +2,13 @@
 
 import { position, tileInfo } from "@/types";
 import { createContext, ReactNode, useState } from "react";
+import letters from "@/defaultLetters";
+import { bankWithdrawal } from "@/utils";
 
 interface gameStateContextType {
-  state: Record<string, tileInfo>;
+  state: Record<string, tileInfo>; //TODO rename to boardState
+  wallet: string[];
+  bank: Record<string, number>;
   spacing: number;
   moveTile: (oldPos: position, newPos: position) => void;
   // addTile: (pos: position) => void;
@@ -16,6 +20,7 @@ export const GameStateContext = createContext<gameStateContextType | null>(
 
 const TileProvider = ({ children }: { children: ReactNode }) => {
   const spacing = 75;
+  const [bank, setBank] = useState<Record<string, number>>(letters);
 
   const [state, setState] = useState<Record<string, tileInfo>>({
     "2,2": {
@@ -73,7 +78,9 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <GameStateContext.Provider value={{ state, moveTile, spacing }}>
+    <GameStateContext.Provider
+      value={{ state, moveTile, spacing, bank, wallet: [] }}
+    >
       {children}
     </GameStateContext.Provider>
   );

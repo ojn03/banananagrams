@@ -82,6 +82,34 @@ export function validateState(
   }
 }
 
+// remove from bank and add to wallet
+export function bankWithdrawal(
+  amount: number,
+  bank: Record<string, number>
+): string[] {
+  const availableLetters: string[] = [];
+  let total = 0;
+  Object.entries(bank).forEach(([k, v]) => {
+    for (let i = v; i > 0; i -= 1) availableLetters.push(k);
+
+    total += v;
+  });
+
+  if (total < amount) {
+    throw Error("not enough letters in bank");
+  } else {
+    const picked: string[] = [];
+    const letters = [...availableLetters];
+    for (let i = 0; i < amount; i++) {
+      const idx = Math.floor(Math.random() * letters.length);
+      const pick = letters[idx];
+      picked.push(pick);
+      bank[pick] -= 1;
+      letters.splice(idx, 1);
+    }
+    return picked;
+  }
+}
 // TODO implement and use trie for fun
 // export class Trie {
 //   constructor(words: string[] = []) {

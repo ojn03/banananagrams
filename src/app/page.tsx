@@ -1,6 +1,7 @@
 import InfiniteGrid from "@/_components/grid";
 import GameStateProvider from "@/_components/context";
 import { loadDictionary } from "@/actions/server";
+import Wallet from "@/_components/wallet";
 
 export default async function Home() {
   const dictionary = loadDictionary();
@@ -8,6 +9,7 @@ export default async function Home() {
   return (
     <div className="h-screen w-screen overflow-hidden">
       <GameStateProvider>
+        <Wallet letters={[]}/>
         <InfiniteGrid dictionary={dictionary} />
       </GameStateProvider>
     </div>

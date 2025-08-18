@@ -2,21 +2,21 @@
 import { useEffect, useState } from "react";
 import useGameStateContext from "@/hooks/gameState";
 import Tile from "./tile";
-import { position } from "@/types";
-import { closestMultiple, validateState } from "@/utils";
+import { Position } from "@/types";
+import { validateState } from "@/utils";
 
 export default function InfiniteGrid({
   dictionary,
 }: {
   dictionary: Set<string>;
 }) {
-  const { state, spacing, moveTile } = useGameStateContext();
+  const { state, spacing, addTile, moveTile } = useGameStateContext();
 
   validateState(state, dictionary);
 
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
-  const [pos, setPos] = useState<position>({ x: 0, y: 0 }); // grid pos
+  const [pos, setPos] = useState<Position>({ x: 0, y: 0 }); // grid pos
 
   const [isDragging, setIsDragging] = useState(false);
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function InfiniteGrid({
   // Generate horizontal lines separated by 100px
   // TODO use canvas instead to draw lines
   const horizontalLines = [];
-  for (let y = pos.y % spacing; y < windowSize.height; y += spacing) {
+  for (let y = -pos.y % spacing; y < windowSize.height; y += spacing) {
     horizontalLines.push(
       <div
         key={y}
@@ -43,7 +43,7 @@ export default function InfiniteGrid({
   }
 
   const verticalLines = [];
-  for (let x = pos.x % spacing; x < windowSize.width; x += spacing) {
+  for (let x = -pos.x % spacing; x < windowSize.width; x += spacing) {
     verticalLines.push(
       <div
         key={x}
@@ -63,23 +63,50 @@ export default function InfiniteGrid({
 
   const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const oldPosString = e.dataTransfer.getData("text/plain");
-    const [oldX, oldY, oldMouseX, oldMouseY] = oldPosString
-      .split(",")
-      .map(Number);
 
-    const oldPos = { x: oldX, y: oldY };
+    const dtoString = e.dataTransfer.getData("application/json");
 
-    // Calculate new position from mouse coordinates
-    const mouseMoveX = e.clientX - oldMouseX;
-    const mouseMoveY = e.clientY - oldMouseY;
+    const dto = JSON.parse(dtoString);
+    const dropData = dto["data"];
 
-    const newPos = {
-      x: closestMultiple(oldX + mouseMoveX, spacing),
-      y: closestMultiple(oldY + mouseMoveY, spacing),
-    };
+    switch (dto["type"]) {
+      case "wallet":
+        const { letter, x, y, mouseX, mouseY } = dropData;
 
-    moveTile(oldPos, newPos);
+        const movementx = e.clientX - mouseX;
+        const movementy = e.clientY - mouseY;
+
+        const newp = new Position(
+          Math.round((x + movementx + pos.x) / spacing),
+          Math.round((y + movementy + pos.y - spacing * 1.5) / spacing) // FIXME New Y is based on hardcoded height of wallet
+        );
+
+        addTile(letter, newp);
+        break;
+      case "tile":
+        const {
+          x: oldX,
+          y: oldY,
+          clientX: oldMouseX,
+          clientY: oldMouseY,
+        } = dropData;
+
+        const oldPos = { x: oldX, y: oldY };
+
+        // Calculate new position from mouse coordinates
+        const mouseMoveX = e.clientX - oldMouseX;
+        const mouseMoveY = e.clientY - oldMouseY;
+
+        const newPos = {
+          x: Math.round((oldX + mouseMoveX) / spacing),
+          y: Math.round((oldY + mouseMoveY) / spacing),
+        };
+
+        moveTile(oldPos, newPos);
+        break;
+      default:
+        console.log("Unknown drop type:", dto.type);
+    }
   };
 
   for (const key in state) {
@@ -101,7 +128,7 @@ export default function InfiniteGrid({
     const handleMouseMove = (event: MouseEvent) => {
       if (isDragging) {
         setPos((prev) => {
-          return { x: prev.x + event.movementX, y: prev.y + event.movementY };
+          return { x: prev.x - event.movementX, y: prev.y - event.movementY };
         });
       }
     };
@@ -132,7 +159,7 @@ export default function InfiniteGrid({
       {horizontalLines}
       {verticalLines}
       {tiles}
-      <div className="fixed top-1 left-1 select-none">
+      <div className="absolute top-1 left-1 select-none">
         {pos.x},{pos.y}
       </div>
     </div>

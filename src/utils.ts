@@ -1,8 +1,5 @@
-import { tileInfo } from "./types";
+import { tileInfo } from "@/types";
 
-export function closestMultiple(number: number, multiple: number) {
-  return Math.round(number / multiple) * multiple;
-}
 
 //TODO make this more efficient (undo recurcsion, find better algorithm, etc) and concise
 export function validateState(
@@ -84,8 +81,8 @@ export function validateState(
 
 // remove from bank and add to wallet
 export function bankWithdrawal(
-  amount: number,
-  bank: Record<string, number>
+  bank: Record<string, number>,
+  amount: number
 ): string[] {
   const availableLetters: string[] = [];
   let total = 0;

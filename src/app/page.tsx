@@ -9,7 +9,7 @@ export default async function Home() {
   return (
     <div className="h-screen w-screen overflow-hidden">
       <GameStateProvider>
-        <Wallet letters={[]}/>
+        <Wallet />
         <InfiniteGrid dictionary={dictionary} />
       </GameStateProvider>
     </div>

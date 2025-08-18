@@ -1,6 +1,6 @@
 "use client";
 
-import { position, tileInfo } from "@/types";
+import { Position, tileInfo } from "@/types";
 import { createContext, ReactNode, useState } from "react";
 import letters from "@/defaultLetters";
 import { bankWithdrawal } from "@/utils";
@@ -10,8 +10,9 @@ interface gameStateContextType {
   wallet: string[];
   bank: Record<string, number>;
   spacing: number;
-  moveTile: (oldPos: position, newPos: position) => void;
-  // addTile: (pos: position) => void;
+  moveTile: (oldPos: Position, newPos: Position) => void;
+  addTile: (letter: string, pos: Position) => void;
+  removeTile: (gridPos: Position) => void;
 }
 
 export const GameStateContext = createContext<gameStateContextType | null>(
@@ -19,43 +20,19 @@ export const GameStateContext = createContext<gameStateContextType | null>(
 );
 
 const TileProvider = ({ children }: { children: ReactNode }) => {
-  const spacing = 75;
-  const [bank, setBank] = useState<Record<string, number>>(letters);
+  const spacing = 50;
+  const initBank = structuredClone(letters);
+  const initialWithDrawal = bankWithdrawal(initBank, 15);
+  const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
+  const [bank, setBank] = useState<Record<string, number>>(initBank);
 
-  const [state, setState] = useState<Record<string, tileInfo>>({
-    "2,2": {
-      letter: "A",
-      valid: {
-        vertical: true,
-        horizontal: true,
-      },
-    },
-    "1,1": {
-      letter: "B",
-      valid: {
-        vertical: true,
-        horizontal: true,
-      },
-    },
-    "3,3": {
-      letter: "B",
-      valid: {
-        vertical: true,
-        horizontal: true,
-      },
-    },
-    "0,0": {
-      letter: "X",
-      valid: {
-        vertical: true,
-        horizontal: true,
-      },
-    },
-  });
+  // TODO make a state class
+  // MAYBE give each tile its own unique ID. Maybe uuid or LetternNumber. So we can delete and add specific tiles
+  const [state, setState] = useState<Record<string, tileInfo>>({});
 
-  const moveTile = (oldPos: position, newPos: position) => {
+  const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x / spacing},${oldPos.y / spacing}`;
-    const targetPositionString = `${newPos.x / spacing},${newPos.y / spacing}`;
+    const targetPositionString = `${newPos.x},${newPos.y}`;
 
     if (targetPositionString === prevPositionString) return;
 
@@ -77,9 +54,54 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const addTile = (letter: string, gridPos: Position) => {
+    //TODO enable swapping grid and wallet tiles
+    if (wallet.includes(letter) && !(gridPos.toString() in state)) {
+      setState((prev) => {
+        return {
+          ...prev,
+          [gridPos.toString()]: {
+            letter,
+            valid: {
+              vertical: true,
+              horizontal: true,
+            },
+          },
+        };
+      });
+      setWallet((prev) => {
+        const prevIndex = prev.findIndex((l) => l == letter);
+        return prev.filter((_, index) => index !== prevIndex);
+      });
+    } else {
+      //MAYBE throw an error here
+      console.error("letter " + letter + " does not exist in wallet");
+    }
+  };
+
+  const removeTile = (gridPos: Position) => {
+    if (!(gridPos.toString() in state)) {
+      //TODO better user flow. we dont j want to crash the game
+      throw new Error("Cannot remove a tile that does not exist");
+    }
+
+    const stateInfo = state[gridPos.toString()];
+
+    setState((prev) => {
+      const newState = { ...prev };
+      delete newState[gridPos.toString()];
+      return newState;
+    });
+
+    setWallet((prev) => {
+      prev.push(stateInfo.letter);
+      return prev;
+    });
+  };
+
   return (
     <GameStateContext.Provider
-      value={{ state, moveTile, spacing, bank, wallet: [] }}
+      value={{ state, spacing, bank, wallet, addTile, removeTile, moveTile }}
     >
       {children}
     </GameStateContext.Provider>

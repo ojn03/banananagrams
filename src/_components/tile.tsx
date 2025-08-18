@@ -1,13 +1,13 @@
 "use client";
 import { useRef } from "react";
-import { position, tileInfo } from "@/types";
+import { Position, tileInfo } from "@/types";
 import useGameStateContext from "@/hooks/gameState";
 
 interface props {
   // the current position of the grid
-  gridPos: position;
+  gridPos: Position;
   info: tileInfo;
-  absolutePosition?: position;
+  absolutePosition?: Position;
   size?: number;
 }
 
@@ -23,15 +23,20 @@ export default function Tile({
   const dragRef = useRef<HTMLDivElement>(null);
 
   const screenPos = {
-    x: absolutePosition.x + gridPos.x,
-    y: absolutePosition.y + gridPos.y,
+    x: absolutePosition.x - gridPos.x,
+    y: absolutePosition.y - gridPos.y,
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     const x = absolutePosition.x;
     const y = absolutePosition.y;
-    e.dataTransfer.setData("text/plain", `${x},${y},${e.clientX},${e.clientY}`);
-    e.dataTransfer.effectAllowed = 'move'
+    const dto = {
+      type: "tile",
+      data: { x, y, clientX: e.clientX, clientY: e.clientY },
+    };
+
+    e.dataTransfer.setData("application/json", JSON.stringify(dto));
+    e.dataTransfer.effectAllowed = "move";
     if (dragRef.current) {
       dragRef.current.style.opacity = "0.5";
     }
@@ -39,19 +44,35 @@ export default function Tile({
 
   const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const oldPosString = e.dataTransfer.getData("text/plain");
+    e.stopPropagation()
 
-    const [x, y, ,] = oldPosString.split(",").map(Number);
-
-    const oldPos = { x, y };
-
-    moveTile(oldPos, absolutePosition);
+    const dtoString = e.dataTransfer.getData("application/json");
+    const dto = JSON.parse(dtoString);
+    const dropData = dto["data"];
+    switch (dto["type"]) {
+      case "tile":
+        // Handle tile movement from between tiles
+        console.log("swapping grid tiles")
+        const { x, y } = dropData;
+        moveTile({ x, y }, absolutePosition);
+        break;
+      case "wallet":
+        // Handle tile placement from wallet onto existing grid tile
+        
+        console.log("Placing tile from wallet:", dto);
+        break;
+      default:
+        // Handle unknown types or fallback
+        console.log("Unknown drop type:", dto.type);
+        break;
+    }
   };
 
   const color =
     info.valid.horizontal || info.valid.vertical
       ? "bg-emerald-300"
       : "bg-gray-400";
+
 
   return (
     <div

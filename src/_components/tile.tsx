@@ -44,7 +44,7 @@ export default function Tile({
 
   const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation()
+    e.stopPropagation();
 
     const dtoString = e.dataTransfer.getData("application/json");
     const dto = JSON.parse(dtoString);
@@ -52,13 +52,16 @@ export default function Tile({
     switch (dto["type"]) {
       case "tile":
         // Handle tile movement from between tiles
-        console.log("swapping grid tiles")
+        console.log("swapping grid tiles");
         const { x, y } = dropData;
-        moveTile({ x, y }, absolutePosition);
+        moveTile(
+          { x, y },
+          { x: absolutePosition.x / size, y: absolutePosition.y / size }
+        ); //TODO make it so I dont divide by size here. only in moveTile func
         break;
       case "wallet":
         // Handle tile placement from wallet onto existing grid tile
-        
+
         console.log("Placing tile from wallet:", dto);
         break;
       default:
@@ -69,10 +72,11 @@ export default function Tile({
   };
 
   const color =
-    info.valid.horizontal || info.valid.vertical
+    info.valid.horizontal && info.valid.vertical
+      ? "bg-emerald-600"
+      : info.valid.horizontal || info.valid.vertical
       ? "bg-emerald-300"
-      : "bg-gray-400";
-
+      : "bg-gray-300";
 
   return (
     <div

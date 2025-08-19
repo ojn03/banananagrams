@@ -3,7 +3,7 @@
 import { Position, tileInfo } from "@/types";
 import { createContext, ReactNode, useState } from "react";
 import letters from "@/defaultLetters";
-import { bankWithdrawal } from "@/utils";
+import { bankWithdrawal, isSingleValidComponent } from "@/utils";
 
 interface gameStateContextType {
   state: Record<string, tileInfo>; //TODO rename to boardState
@@ -32,7 +32,7 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
 
   const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x / spacing},${oldPos.y / spacing}`;
-    const targetPositionString = `${newPos.x},${newPos.y}`;
+    const targetPositionString = `${newPos.x},${newPos.y}`; // TODO make target math consistent with prev math.
 
     if (targetPositionString === prevPositionString) return;
 
@@ -52,6 +52,16 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
 
       return newState;
     });
+  };
+
+  const canPeel = () => isSingleValidComponent(state) && wallet.length == 0;
+
+  const Peel = () => {
+    if (!canPeel()) {
+      return console.log("Cannot Peel");
+    }
+
+    bankWithdrawal(bank, 1)
   };
 
   const addTile = (letter: string, gridPos: Position) => {

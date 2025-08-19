@@ -1,5 +1,4 @@
-import { tileInfo } from "@/types";
-
+import { TileInfo, tileInfo } from "@/types";
 
 //TODO make this more efficient (undo recurcsion, find better algorithm, etc) and concise
 export function validateState(
@@ -7,7 +6,7 @@ export function validateState(
   dictionary: Set<string>
 ) {
   Object.values(state).forEach((state) => {
-    // all tiles by default are valid both vertical and horizontal
+    // all tiles by default are invalid both vertical and horizontal
     state.valid = {
       horizontal: false,
       vertical: false,
@@ -77,6 +76,55 @@ export function validateState(
     state[posString].valid.horizontal = isValidRight;
     return isValidRight;
   }
+}
+
+// checks that the state is a single component and that all tiles are valid
+export function isSingleValidComponent(
+  state: Record<string, tileInfo>
+): boolean {
+  if (!state || Object.keys(state).length === 0) {
+    return false;
+  }
+
+  const keySet: Set<string> = new Set();
+  for (const pos in state) {
+    const tile = state[pos];
+    if (!(tile.valid.horizontal && tile.valid.vertical)) {
+      return false;
+    }
+    keySet.add(pos);
+  }
+
+  const firstElement = keySet.values().next().value!;
+  keySet.delete(firstElement);
+  const q = [firstElement];
+
+  while (q.length > 0) {
+    const [x, y] = q.shift()!.split(",").map(Number);
+
+    const left = `${x - 1},${y}`;
+    const right = `${x + 1},${y}`;
+    const up = `${x},${y - 1}`;
+    const down = `${x},${y + 1}`;
+    if (keySet.has(up)) {
+      keySet.delete(up);
+      q.push(up);
+    }
+    if (keySet.has(down)) {
+      keySet.delete(down);
+      q.push(down);
+    }
+    if (keySet.has(left)) {
+      keySet.delete(left);
+      q.push(left);
+    }
+    if (keySet.has(right)) {
+      keySet.delete(right);
+      q.push(right);
+    }
+  }
+
+  return keySet.size === 0;
 }
 
 // remove from bank and add to wallet

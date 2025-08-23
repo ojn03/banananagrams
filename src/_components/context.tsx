@@ -1,16 +1,12 @@
 "use client";
 
-import {
-  DropData,
-  Position,
-  TileDropData,
-  tileInfo,
-  WalletDropData,
-} from "@/types";
-import { createContext, ReactNode, useState } from "react";
+import { DropData, Position, TileDropData, tileInfo } from "@/types";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import letters from "@/defaultLetters";
 import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils";
 
+//TODO add multiselect
+//TODO maybe move to hooks file
 interface gameStateContextType {
   state: Record<string, tileInfo>; //TODO rename to boardState
   wallet: string[];
@@ -91,29 +87,23 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
         return console.error("unknown drop type");
     }
 
-    const newBank = { ...bank };
-    newBank[letter] += 1;
+    bank[letter] += 1;
     const newLetters = bankWithdrawal(bank, 3);
 
     const newWallet = wallet.concat(newLetters);
 
     setWallet(newWallet);
-    setBank(newBank);
-  };
-
-  const canPeel = () => isSingleValidComponent(state) && wallet.length == 0;
-
-  const Peel = () => {
-    if (!canPeel()) {
-      return console.error("Cannot Peel");
-    }
-
-    // TODO enable peel for all players
-    // If not enough in bank, this player wins
-
-    bankWithdrawal(bank, 1);
     setBank(bank);
   };
+
+  // TODO maybe make peel manual. i.e user has to press space to call peel
+  useEffect(() => {
+    if (isSingleValidComponent(state) && wallet.length == 0) {
+      const newletters = bankWithdrawal(bank, 1);
+      setWallet(wallet.concat(newletters));
+      setBank(bank);
+    }
+  }, [bank, state, wallet]);
 
   const addTile = (letter: string, gridPos: Position) => {
     //TODO enable swapping grid and wallet tiles
@@ -150,9 +140,8 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
     }
 
     setState((prev) => {
-      const newState = { ...prev };
-      delete newState[gridPos.toString()];
-      return newState;
+      delete prev[gridPos.toString()];
+      return prev;
     });
   };
 

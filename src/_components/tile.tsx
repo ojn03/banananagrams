@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import { Position, TileDropData, tileInfo } from "@/types";
 import useGameStateContext from "@/hooks/gameState";
+import { isValidTile } from "@/utils";
 
 interface props {
   // the current position of the grid
@@ -17,7 +18,7 @@ export default function Tile({
   absolutePosition = { x: 100, y: 100 },
   size = 50,
 }: props) {
-  const { moveTile } = useGameStateContext();
+  const { moveTile, state } = useGameStateContext();
   const dragRef = useRef<HTMLDivElement>(null);
 
   const screenPos = {
@@ -75,12 +76,14 @@ export default function Tile({
     }
   };
 
-  const color =
-    info.valid.horizontal && info.valid.vertical
-      ? "bg-emerald-600"
-      : info.valid.horizontal || info.valid.vertical
-      ? "bg-emerald-300"
-      : "bg-gray-300";
+  const color = !isValidTile(
+    state,
+    `${absolutePosition.x / size},${absolutePosition.y / size}`
+  )
+    ? "bg-gray-300" // word is invalid
+    : info.valid.horizontal && info.valid.vertical
+    ? "bg-emerald-700" // word is valid both ways
+    : "bg-emerald-400"; // word is only valid one way
 
   return (
     <div
@@ -94,12 +97,12 @@ export default function Tile({
       }}
       style={{
         position: "absolute",
-        top: screenPos.y,
-        left: screenPos.x,
-        height: size,
-        width: size,
+        top: screenPos.y + size * 0.025,
+        left: screenPos.x + size * 0.06,
+        height: size * 0.95,
+        width: size * 0.9,
       }}
-      className={`rounded-xl flex justify-center items-center cursor-pointer select-none hover:scale-105 ${color}`}
+      className={`rounded-lg flex justify-center items-center cursor-pointer select-none hover:scale-105 ${color}`}
     >
       {info.letter}
     </div>

@@ -19,8 +19,11 @@ export default function Dump() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 w-20 h-20" onDrop={handleDrop}>
-      <DumpIcon />
+    <div
+      className="fixed bottom-5 right-5 w-20 h-20 rounded-2xl bg-neutral-800 opacity-75"
+      onDrop={handleDrop}
+    >
+      <DumpIcon className="fill-red-800" />
     </div>
   );
 }

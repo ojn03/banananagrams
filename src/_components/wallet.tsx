@@ -27,7 +27,6 @@ export default function Wallet() {
     setLetters(wallet);
   }, [wallet]);
 
-
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
@@ -38,7 +37,7 @@ export default function Wallet() {
       style={{
         height: spacing * 1.5,
       }}
-      className={`w-full bg-violet-400 top-0 z-10 relative flex justify-evenly items-center`}
+      className={`w-full bg-neutral-800 top-0 z-10 relative flex justify-evenly items-center`}
     >
       {letters.map((letter, i) => {
         return <WalletTile letter={letter} spacing={spacing} key={i} />;
@@ -66,6 +65,7 @@ function WalletTile({ letter, spacing }: { letter: string; spacing: number }) {
     };
 
     event.dataTransfer.setData("application/json", JSON.stringify(dto));
+    event.dataTransfer.effectAllowed = "move";
   };
 
   return (
@@ -75,7 +75,7 @@ function WalletTile({ letter, spacing }: { letter: string; spacing: number }) {
       onDragOver={(e) => {
         e.preventDefault();
       }}
-      className="bg-blue-400 border-2 border-blue-500 rounded-lg shadow-lg flex justify-center items-center select-none"
+      className="bg-gray-400  rounded-lg shadow-lg flex justify-center items-center select-none"
       style={{
         height: spacing,
         width: spacing,

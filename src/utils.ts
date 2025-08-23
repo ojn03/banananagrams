@@ -1,4 +1,4 @@
-import { TileInfo, tileInfo } from "@/types";
+import { tileInfo } from "@/types";
 
 //TODO make this more efficient (undo recurcsion, find better algorithm, etc) and concise
 export function validateState(
@@ -78,6 +78,35 @@ export function validateState(
   }
 }
 
+export function isValidTile(state: Record<string, tileInfo>, pos: string ): boolean {
+  const tile = state[pos];
+
+  // if both directions are invalid, return false
+  if (!tile.valid.horizontal && !tile.valid.vertical) {
+    return false;
+  }
+
+  const [x, y] = pos.split(",").map(Number);
+
+  // Check if horizontal is invalid and it is part of a horizontal word.
+  // We dont care that its invalid if its not part of a word
+  if (
+    !tile.valid.horizontal &&
+    (`${x - 1},${y}` in state || `${x + 1},${y}` in state)
+  ) {
+    return false;
+  }
+
+  // same for vertical
+  if (
+    !tile.valid.vertical &&
+    (`${x},${y - 1}` in state || `${x},${y + 1}` in state)
+  ) {
+    return false;
+  }
+  return true;
+}
+
 // checks that the state is a single component and that all tiles are valid
 export function isSingleValidComponent(
   state: Record<string, tileInfo>
@@ -88,10 +117,10 @@ export function isSingleValidComponent(
 
   const keySet: Set<string> = new Set();
   for (const pos in state) {
-    const tile = state[pos];
-    if (!(tile.valid.horizontal && tile.valid.vertical)) {
-      return false;
+    if (! isValidTile(state, pos)){
+      return false
     }
+
     keySet.add(pos);
   }
 
@@ -156,11 +185,11 @@ export function bankWithdrawal(
   }
 }
 
-export function bankSize(bank: Record<string, number>){
-  let total = 0
-  Object.values(bank).forEach((n) => total += n)
+export function bankSize(bank: Record<string, number>) {
+  let total = 0;
+  Object.values(bank).forEach((n) => (total += n));
 
-  return total
+  return total;
 }
 // TODO implement and use trie for fun
 // export class Trie {

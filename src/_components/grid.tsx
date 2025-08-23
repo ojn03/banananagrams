@@ -4,6 +4,7 @@ import useGameStateContext from "@/hooks/gameState";
 import Tile from "./tile";
 import { Position } from "@/types";
 import { validateState } from "@/utils";
+import Dump from "./dump";
 
 export default function InfiniteGrid({
   dictionary,
@@ -71,6 +72,7 @@ export default function InfiniteGrid({
 
     switch (dto["type"]) {
       case "wallet":
+        console.log("drop tile from wallet");
         const { letter, x, y, mouseX, mouseY } = dropData;
 
         const movementx = e.clientX - mouseX;
@@ -84,6 +86,8 @@ export default function InfiniteGrid({
         addTile(letter, newp);
         break;
       case "tile":
+        console.log("drop tile from grid");
+
         const {
           x: oldX,
           y: oldY,
@@ -105,7 +109,7 @@ export default function InfiniteGrid({
         moveTile(oldPos, newPos);
         break;
       default:
-        console.log("Unknown drop type:", dto.type);
+        console.error("Unknown drop type:", dto.type);
     }
   };
 
@@ -161,6 +165,7 @@ export default function InfiniteGrid({
       {tiles}
       <div className="absolute top-1 left-1 select-none">
         {pos.x},{pos.y}
+        <Dump />
       </div>
     </div>
   );

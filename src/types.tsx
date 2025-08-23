@@ -6,6 +6,33 @@ export interface tileInfo {
   };
 }
 
+export interface DropData {
+  type: string;
+  data: Record<string, unknown>;
+}
+
+export interface TileDropData extends DropData {
+  type: "tile";
+  data: {
+    x: number;
+    y: number;
+    clientX: number;
+    clientY: number;
+    letter: string;
+  };
+}
+
+export interface WalletDropData extends DropData {
+  type: "wallet";
+  data: {
+    letter: string;
+    x: number;
+    y: number;
+    mouseX: number;
+    mouseY: number;
+  };
+}
+
 export class Position {
   x: number;
   y: number;

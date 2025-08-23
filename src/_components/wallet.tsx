@@ -1,5 +1,6 @@
 "use client";
 import useGameStateContext from "@/hooks/gameState";
+import { WalletDropData } from "@/types";
 import { useEffect, useState } from "react";
 /** TODO 
  * 
@@ -26,24 +27,6 @@ export default function Wallet() {
     setLetters(wallet);
   }, [wallet]);
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const dtoString = e.dataTransfer.getData("application/json");
-
-    const dto = JSON.parse(dtoString);
-    const dropData = dto["data"];
-
-    switch (dto["type"]) {
-      case "wallet":
-        // TODO make drag and drop work within wallet
-        console.log("wallet to wallet tile. do nothing");
-        break;
-      case "tile":
-        break;
-      default:
-        console.log("Unknown drop type:", dto.type);
-    }
-  };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -52,7 +35,6 @@ export default function Wallet() {
   return (
     <div
       onDragOver={handleDragOver}
-      onDrop={handleDrop}
       style={{
         height: spacing * 1.5,
       }}
@@ -72,7 +54,7 @@ function WalletTile({ letter, spacing }: { letter: string; spacing: number }) {
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
 
-    const dto = {
+    const dto: WalletDropData = {
       type: "wallet",
       data: {
         letter,

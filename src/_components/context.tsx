@@ -1,9 +1,15 @@
 "use client";
 
-import { Position, tileInfo } from "@/types";
+import {
+  DropData,
+  Position,
+  TileDropData,
+  tileInfo,
+  WalletDropData,
+} from "@/types";
 import { createContext, ReactNode, useState } from "react";
 import letters from "@/defaultLetters";
-import { bankWithdrawal, isSingleValidComponent } from "@/utils";
+import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils";
 
 interface gameStateContextType {
   state: Record<string, tileInfo>; //TODO rename to boardState
@@ -13,6 +19,7 @@ interface gameStateContextType {
   moveTile: (oldPos: Position, newPos: Position) => void;
   addTile: (letter: string, pos: Position) => void;
   removeTile: (gridPos: Position) => void;
+  dump: (dto: DropData) => void;
 }
 
 export const GameStateContext = createContext<gameStateContextType | null>(
@@ -22,7 +29,7 @@ export const GameStateContext = createContext<gameStateContextType | null>(
 const TileProvider = ({ children }: { children: ReactNode }) => {
   const spacing = 50;
   const initBank = structuredClone(letters);
-  const initialWithDrawal = bankWithdrawal(initBank, 15);
+  const initialWithDrawal = bankWithdrawal(initBank, 3);
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [bank, setBank] = useState<Record<string, number>>(initBank);
 
@@ -54,14 +61,58 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  //TODO enable dump from grid tile
+  const dump = (dto: DropData) => {
+    if (bankSize(bank) < 3) {
+      return console.error("not enough letters in bank to dump");
+    }
+
+    const letter = dto.data.letter as string;
+
+    switch (dto.type) {
+      case "tile":
+        const {
+          data: { x, y },
+        } = dto as TileDropData;
+
+        removeTile(new Position(x / spacing, y / spacing));
+        break;
+      case "wallet":
+        if (!wallet.includes(letter)) {
+          return console.error(
+            `letter ${letter} cannot be dumped as it does not exist in wallet`
+          );
+        }
+
+        const letterIndex = wallet.findIndex((l) => l == letter);
+        wallet.splice(letterIndex, 1);
+        break;
+      default:
+        return console.error("unknown drop type");
+    }
+
+    const newBank = { ...bank };
+    newBank[letter] += 1;
+    const newLetters = bankWithdrawal(bank, 3);
+
+    const newWallet = wallet.concat(newLetters);
+
+    setWallet(newWallet);
+    setBank(newBank);
+  };
+
   const canPeel = () => isSingleValidComponent(state) && wallet.length == 0;
 
   const Peel = () => {
     if (!canPeel()) {
-      return console.log("Cannot Peel");
+      return console.error("Cannot Peel");
     }
 
-    bankWithdrawal(bank, 1)
+    // TODO enable peel for all players
+    // If not enough in bank, this player wins
+
+    bankWithdrawal(bank, 1);
+    setBank(bank);
   };
 
   const addTile = (letter: string, gridPos: Position) => {
@@ -92,26 +143,31 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
   const removeTile = (gridPos: Position) => {
     if (!(gridPos.toString() in state)) {
       //TODO better user flow. we dont j want to crash the game
-      throw new Error("Cannot remove a tile that does not exist");
+      return console.error(
+        "attempting to remove inexistent position: ",
+        gridPos.toString()
+      );
     }
-
-    const stateInfo = state[gridPos.toString()];
 
     setState((prev) => {
       const newState = { ...prev };
       delete newState[gridPos.toString()];
       return newState;
     });
-
-    setWallet((prev) => {
-      prev.push(stateInfo.letter);
-      return prev;
-    });
   };
 
   return (
     <GameStateContext.Provider
-      value={{ state, spacing, bank, wallet, addTile, removeTile, moveTile }}
+      value={{
+        state,
+        spacing,
+        bank,
+        wallet,
+        addTile,
+        removeTile,
+        moveTile,
+        dump,
+      }}
     >
       {children}
     </GameStateContext.Provider>

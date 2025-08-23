@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { Position, tileInfo } from "@/types";
+import { Position, TileDropData, tileInfo } from "@/types";
 import useGameStateContext from "@/hooks/gameState";
 
 interface props {
@@ -10,8 +10,6 @@ interface props {
   absolutePosition?: Position;
   size?: number;
 }
-
-//TODO move useEffects to grid component
 
 export default function Tile({
   gridPos,
@@ -30,9 +28,15 @@ export default function Tile({
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     const x = absolutePosition.x;
     const y = absolutePosition.y;
-    const dto = {
+    const dto: TileDropData = {
       type: "tile",
-      data: { x, y, clientX: e.clientX, clientY: e.clientY },
+      data: {
+        x,
+        y,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        letter: info.letter,
+      },
     };
 
     e.dataTransfer.setData("application/json", JSON.stringify(dto));
@@ -62,11 +66,11 @@ export default function Tile({
       case "wallet":
         // Handle tile placement from wallet onto existing grid tile
 
-        console.log("Placing tile from wallet:", dto);
+        console.error("cannot drop wallet tile onto existing tile", dto);
         break;
       default:
         // Handle unknown types or fallback
-        console.log("Unknown drop type:", dto.type);
+        console.error("Unknown drop type:", dto.type);
         break;
     }
   };

@@ -155,6 +155,13 @@ export function bankWithdrawal(
     return picked;
   }
 }
+
+export function bankSize(bank: Record<string, number>){
+  let total = 0
+  Object.values(bank).forEach((n) => total += n)
+
+  return total
+}
 // TODO implement and use trie for fun
 // export class Trie {
 //   constructor(words: string[] = []) {

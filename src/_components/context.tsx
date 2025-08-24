@@ -5,10 +5,11 @@ import { createContext, ReactNode, useEffect, useState } from "react";
 import letters from "@/defaultLetters";
 import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils";
 
+//TODO toast notis for errors, peel, dump, etc
 //TODO add multiselect
-//TODO maybe move to hooks file
+//MAYBE maybe move to hooks file
 interface gameStateContextType {
-  state: Record<string, tileInfo>; //TODO rename to boardState
+  board: Record<string, tileInfo>;
   wallet: string[];
   bank: Record<string, number>;
   spacing: number;
@@ -25,21 +26,21 @@ export const GameStateContext = createContext<gameStateContextType | null>(
 const TileProvider = ({ children }: { children: ReactNode }) => {
   const spacing = 50;
   const initBank = structuredClone(letters);
-  const initialWithDrawal = bankWithdrawal(initBank, 3);
+  const initialWithDrawal = bankWithdrawal(initBank, 15);
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [bank, setBank] = useState<Record<string, number>>(initBank);
 
-  // TODO make a state class
-  // MAYBE give each tile its own unique ID. Maybe uuid or LetternNumber. So we can delete and add specific tiles
-  const [state, setState] = useState<Record<string, tileInfo>>({});
+  // MAYBE make a board class
+  // TODO give each tile its own unique ID. Maybe uuid or LetterNumber. So we can delete and add specific tiles
+  const [board, setBoard] = useState<Record<string, tileInfo>>({});
 
   const moveTile = (oldPos: Position, newPos: Position) => {
-    const prevPositionString = `${oldPos.x / spacing},${oldPos.y / spacing}`;
-    const targetPositionString = `${newPos.x},${newPos.y}`; // TODO make target math consistent with prev math.
+    const prevPositionString = `${oldPos.x},${oldPos.y}`;
+    const targetPositionString = `${newPos.x},${newPos.y}`;
 
     if (targetPositionString === prevPositionString) return;
 
-    setState((prev) => {
+    setBoard((prev) => {
       const newState = { ...prev };
 
       if (targetPositionString in newState) {
@@ -57,7 +58,6 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  //TODO enable dump from grid tile
   const dump = (dto: DropData) => {
     if (bankSize(bank) < 3) {
       return console.error("not enough letters in bank to dump");
@@ -71,7 +71,7 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
           data: { x, y },
         } = dto as TileDropData;
 
-        removeTile(new Position(x / spacing, y / spacing));
+        removeTile(new Position(x , y ));
         break;
       case "wallet":
         if (!wallet.includes(letter)) {
@@ -96,19 +96,19 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
     setBank(bank);
   };
 
-  // TODO maybe make peel manual. i.e user has to press space to call peel
+  // MAYBE make peel manual. i.e user has to press space to call peel
   useEffect(() => {
-    if (isSingleValidComponent(state) && wallet.length == 0) {
+    if (isSingleValidComponent(board) && wallet.length == 0) {
       const newletters = bankWithdrawal(bank, 1);
       setWallet(wallet.concat(newletters));
       setBank(bank);
     }
-  }, [bank, state, wallet]);
+  }, [bank, board, wallet]);
 
   const addTile = (letter: string, gridPos: Position) => {
     //TODO enable swapping grid and wallet tiles
-    if (wallet.includes(letter) && !(gridPos.toString() in state)) {
-      setState((prev) => {
+    if (wallet.includes(letter) && !(gridPos.toString() in board)) {
+      setBoard((prev) => {
         return {
           ...prev,
           [gridPos.toString()]: {
@@ -125,21 +125,21 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
         return prev.filter((_, index) => index !== prevIndex);
       });
     } else {
-      //MAYBE throw an error here
+      //TODO Toast
       console.error("letter " + letter + " does not exist in wallet");
     }
   };
 
   const removeTile = (gridPos: Position) => {
-    if (!(gridPos.toString() in state)) {
-      //TODO better user flow. we dont j want to crash the game
+    if (!(gridPos.toString() in board)) {
+      //TODO Toast
       return console.error(
         "attempting to remove inexistent position: ",
         gridPos.toString()
       );
     }
 
-    setState((prev) => {
+    setBoard((prev) => {
       delete prev[gridPos.toString()];
       return prev;
     });
@@ -148,7 +148,7 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
   return (
     <GameStateContext.Provider
       value={{
-        state,
+        board,
         spacing,
         bank,
         wallet,

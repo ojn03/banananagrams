@@ -1,4 +1,3 @@
-//TODO move hooks here
 import { useContext } from "react";
 import { GameStateContext } from "@/_components/context";
 

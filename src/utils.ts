@@ -1,7 +1,7 @@
 import { tileInfo } from "@/types";
 
 //TODO make this more efficient (undo recurcsion, find better algorithm, etc) and concise
-export function validateState(
+export function validateBoard(
   state: Record<string, tileInfo>,
   dictionary: Set<string>
 ) {
@@ -191,7 +191,7 @@ export function bankSize(bank: Record<string, number>) {
 
   return total;
 }
-// TODO implement and use trie for fun
+// MAYBE implement and use trie for fun
 // export class Trie {
 //   constructor(words: string[] = []) {
 //     words.forEach((word) => {

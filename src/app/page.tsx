@@ -1,7 +1,7 @@
-import InfiniteGrid from "@/_components/grid";
+import InfiniteGrid from "@/_components/grid/grid";
 import GameStateProvider from "@/_components/context";
 import { loadDictionary } from "@/actions/server";
-import Wallet from "@/_components/wallet";
+import Wallet from "@/_components/wallet/wallet";
 
 export default async function Home() {
   const dictionary = loadDictionary();

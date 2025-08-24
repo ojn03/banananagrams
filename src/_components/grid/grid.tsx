@@ -3,17 +3,18 @@ import { useEffect, useState } from "react";
 import useGameStateContext from "@/hooks/gameState";
 import Tile from "./tile";
 import { Position } from "@/types";
-import { validateState } from "@/utils";
-import Dump from "./dump";
+import { validateBoard } from "@/utils";
+import Dump from "../dump";
+import GridCanvas from "./canvas";
 
 export default function InfiniteGrid({
   dictionary,
 }: {
   dictionary: Set<string>;
 }) {
-  const { state, spacing, addTile, moveTile } = useGameStateContext();
+  const { board: board, spacing, addTile, moveTile } = useGameStateContext();
 
-  validateState(state, dictionary);
+  validateBoard(board, dictionary);
 
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
@@ -24,43 +25,23 @@ export default function InfiniteGrid({
     setWindowSize({ width: window.screen.width, height: window.screen.height });
   }, []);
 
-  // Generate horizontal lines separated by 100px
-  // TODO use canvas instead to draw lines
-  const horizontalLines = [];
-  for (let y = -pos.y % spacing; y < windowSize.height; y += spacing) {
-    horizontalLines.push(
-      <div
-        key={y}
-        style={{
-          position: "absolute",
-          top: y,
-          left: 0,
-          width: "100%",
-          height: 1,
-          background: "#ccc",
-        }}
-      />
-    );
-  }
+  useEffect(() => {
+    const logMemory = () => {
+      if ("memory" in performance) {
+        const memory = (performance as any).memory; // eslint-disable-line
+        console.log("Memory usage:", {
+          used: `${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+          total: `${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+          limit: `${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)} MB`,
+        });
+      }
+    };
 
-  const verticalLines = [];
-  for (let x = -pos.x % spacing; x < windowSize.width; x += spacing) {
-    verticalLines.push(
-      <div
-        key={x}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: x,
-          width: 1,
-          height: "100%",
-          background: "#ccc",
-        }}
-      />
-    );
-  }
+    const interval = setInterval(logMemory, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const tiles = [];
+  // TODO enable mobile dragging
 
   const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -102,8 +83,8 @@ export default function InfiniteGrid({
         const mouseMoveY = e.clientY - oldMouseY;
 
         const newPos = {
-          x: Math.round((oldX + mouseMoveX) / spacing),
-          y: Math.round((oldY + mouseMoveY) / spacing),
+          x: Math.round(oldX + mouseMoveX / spacing),
+          y: Math.round(oldY + mouseMoveY / spacing),
         };
 
         moveTile(oldPos, newPos);
@@ -113,13 +94,15 @@ export default function InfiniteGrid({
     }
   };
 
-  for (const key in state) {
+  const tiles = [];
+
+  for (const key in board) {
     const [x, y] = key.split(",").map(Number);
     const tile = (
       <Tile
         gridPos={pos}
-        absolutePosition={{ x: x * spacing, y: y * spacing }}
-        info={state[key]}
+        absolutePosition={{ x, y }}
+        info={board[key]}
         key={key}
         size={spacing}
       />
@@ -127,7 +110,7 @@ export default function InfiniteGrid({
     tiles.push(tile);
   }
 
-  //enable panning the grid
+  // enable panning the grid
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       if (isDragging) {
@@ -160,8 +143,8 @@ export default function InfiniteGrid({
       }}
       className="h-full w-full bg-white text-black relative cursor-grab active:cursor-grabbing"
     >
-      {horizontalLines}
-      {verticalLines}
+      <GridCanvas pos={pos} spacing={spacing} windowSize={windowSize} />
+
       {tiles}
       <div className="absolute top-1 left-1 select-none">
         {pos.x},{pos.y}

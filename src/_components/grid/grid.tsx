@@ -12,7 +12,7 @@ export default function InfiniteGrid({
 }: {
   dictionary: Set<string>;
 }) {
-  const { board: board, spacing, addTile, moveTile } = useGameStateContext();
+  const { board, spacing, addTile, moveTile } = useGameStateContext();
 
   validateBoard(board, dictionary);
 
@@ -25,24 +25,7 @@ export default function InfiniteGrid({
     setWindowSize({ width: window.screen.width, height: window.screen.height });
   }, []);
 
-  useEffect(() => {
-    const logMemory = () => {
-      if ("memory" in performance) {
-        const memory = (performance as any).memory; // eslint-disable-line
-        console.log("Memory usage:", {
-          used: `${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
-          total: `${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
-          limit: `${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)} MB`,
-        });
-      }
-    };
-
-    const interval = setInterval(logMemory, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
   // TODO enable mobile dragging
-
   const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
 

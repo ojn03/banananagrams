@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { room, user } from "../types";
 
 /**
  *
@@ -16,16 +17,20 @@ import mongoose from "mongoose";
  * every 24hrs delete all data that's older than a day
  */
 
+// MAYBE convert file to folder with file for each model
 // TODO move each user's board state from client to server
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String },
+    name: {
+      type: String,
+      required: true,
+    },
   },
   { collection: "user" }
 );
 
-const userModel = mongoose.model("user", userSchema);
+const userModel = mongoose.model<user>("user", userSchema);
 
 const roomSchema = new mongoose.Schema(
   {
@@ -46,7 +51,7 @@ const roomSchema = new mongoose.Schema(
   }
 );
 
-const roomModel = mongoose.model("room", roomSchema);
+const roomModel = mongoose.model<room>("room", roomSchema);
 
 const bankSchema = new mongoose.Schema(
   {

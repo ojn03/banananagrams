@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { room, user } from "../types";
+import { Bank, Room, User } from "../types";
 
 /**
  *
@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
   { collection: "user" }
 );
 
-const userModel = mongoose.model<user>("user", userSchema);
+const userModel = mongoose.model<User>("user", userSchema);
 
 const roomSchema = new mongoose.Schema(
   {
@@ -51,29 +51,25 @@ const roomSchema = new mongoose.Schema(
   }
 );
 
-const roomModel = mongoose.model<room>("room", roomSchema);
+const roomModel = mongoose.model<Room>("room", roomSchema);
 
 const bankSchema = new mongoose.Schema(
   {
     room: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      unique: true,
       ref: "room",
     },
     vault: {
-      type: new mongoose.Schema(
-        {
-          letter: { type: String, reequired: true },
-          count: { type: Number, required: true },
-        },
-        { _id: false }
-      ),
+      type: Map,
+      of: Number,
       required: true,
     },
   },
   { collection: "bank" }
 );
 
-const bankModel = mongoose.model("bank", bankSchema);
+const bankModel = mongoose.model<Bank>("bank", bankSchema);
 
 export { userModel, roomModel, bankModel };

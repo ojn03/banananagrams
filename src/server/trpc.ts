@@ -1,4 +1,8 @@
 import { initTRPC } from "@trpc/server";
+
+// MAYBE create a context if useful
+// @see https://trpc.io/docs/context
+
 /**
  * Initialization of tRPC backend
  * Should be done only once per backend!

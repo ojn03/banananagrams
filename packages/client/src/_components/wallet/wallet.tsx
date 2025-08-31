@@ -12,7 +12,7 @@ import { trpc } from "@/utils/trpc";
  *
  */
 export default function Wallet() {
-  const { isLoading, refetch, error, data } = trpc.hello.useQuery();
+  const { isLoading, error, data } = trpc.hello.useQuery();
 
   const { wallet, spacing } = useGameStateContext();
 

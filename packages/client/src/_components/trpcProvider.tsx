@@ -4,7 +4,7 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc } from "../utils/trpc";
 import { httpBatchLink, loggerLink } from "@trpc/client";
-import superjson from "superjson";
+// import superjson from "superjson";
 
 export default function TRPCProvider({
   children,
@@ -26,7 +26,7 @@ export default function TRPCProvider({
             (opts.direction === "down" && opts.result instanceof Error),
         }),
         httpBatchLink({
-          url: process.env.base_server_url || "http://localhost:3001",
+          url: process.env.NEXT_PUBLIC_BASE_SERVER || "http://localhost:3001",
           /**
            * Transformer used for data de-serialization from the server.
            *

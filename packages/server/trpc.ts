@@ -1,5 +1,5 @@
 import { initTRPC } from "@trpc/server";
-import superjson from "superjson";
+// import superjson from "superjson";
 
 // MAYBE create a context if useful
 // @see https://trpc.io/docs/context

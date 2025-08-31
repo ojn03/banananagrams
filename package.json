@@ -18,9 +18,9 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "dev-client": "npm --prefix client run dev",
-    "dev-server": "cd server && npm run dev",
-    "dev": "npm run dev-server & npm run dev-client",
-    "build-client": "cd client && npm run build"
+    "dev:client": "npm --prefix packages/client run dev",
+    "dev:server": "npm --prefix packages/server run dev",
+    "dev": "npm run dev:server & npm run dev:client",
+    "build:client": "npm --prefix packages/client run build"
   }
 }

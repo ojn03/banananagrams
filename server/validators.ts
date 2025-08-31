@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from "mongoose";
+import { isValidObjectId } from "mongoose";
 
 
 function validateObject<T extends Record<string, unknown>>(
@@ -29,10 +29,6 @@ function validateObject<T extends Record<string, unknown>>(
   }
 
   return result;
-}
-
-export function isValidUser(maybeUser: unknown) {
-  const allowedUserKeys = [];
 }
 
 export function isValidOIDString(val: unknown): string {

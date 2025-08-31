@@ -2,15 +2,18 @@
 import useGameStateContext from "@/hooks/gameState";
 import { useEffect, useState } from "react";
 import { WalletTile } from "./WalletTile";
-/** TODO 
- * 
+import { trpc } from "@/utils/trpc";
+/** TODO
+ *
  * enable drag and drop between wallet and grid
- * 
+ *
  * - from grid to wallet:
  *   ...
- * 
-*/
+ *
+ */
 export default function Wallet() {
+  const { isLoading, refetch, error, data } = trpc.hello.useQuery();
+
   const { wallet, spacing } = useGameStateContext();
 
   const [letters, setLetters] = useState<string[]>([]);
@@ -18,6 +21,8 @@ export default function Wallet() {
   useEffect(() => {
     setLetters(wallet);
   }, [wallet]);
+  if (isLoading) return null;
+  if (error) return <div>Error: {error.message}</div>;
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -34,6 +39,7 @@ export default function Wallet() {
       {letters.map((letter, i) => {
         return <WalletTile letter={letter} spacing={spacing} key={i} />;
       })}
+      {data}
     </div>
   );
 }

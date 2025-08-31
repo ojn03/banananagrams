@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Bank, Room, User } from "../types";
+import { Bank, Room, User } from "@/types";
 
 /**
  *

@@ -1,5 +1,5 @@
-import { userModel } from "../schemas";
-import { User } from "@/server/types";
+import { userModel } from "@/db/schemas";
+import { User } from "@/types";
 
 export async function createUser(name: string) {
   return await userModel.create({ name });

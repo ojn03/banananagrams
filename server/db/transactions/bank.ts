@@ -1,6 +1,6 @@
-import { Bank } from "@/server/types";
-import { bankModel } from "../schemas";
-import { getRoomByRoomCode } from "./room";
+import { Bank } from "@/types";
+import { bankModel } from "@/db/schemas";
+import { getRoomByRoomCode } from "@/db/transactions/room";
 
 function bankSize(bank: Bank) {
   let bankSize = 0;

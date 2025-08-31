@@ -1,8 +1,8 @@
-import { Room } from "@/server/types";
-import { roomModel } from "../schemas";
-import { getUserById } from "./user";
+import { Room } from "@/types";
+import { roomModel } from "@/db/schemas";
+import { getUserById } from "@/db/transactions/user";
 
-//MAYBE implement transactions
+//MAYBE implement atomic transactions
 
 export async function createRoom(roomName: string, userId: string) {
   const room_code = Math.floor(Math.random() * 1000000)

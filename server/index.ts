@@ -1,20 +1,27 @@
+import { router, publicProcedure } from "@/trpc";
 import dotenv from "dotenv";
-import { router, publicProcedure } from "./trpc";
+import cors from "cors";
 import mongoose from "mongoose";
-import { createUser, getUserById } from "./db/transactions/user";
+import { createUser, getUserById } from "@/db/transactions/user";
 import {
   isString,
   isValidOIDString,
   validateAddUserToRoomInput,
   validateCreateRoomInput,
-} from "./validators";
+} from "@/validators";
+import { createHTTPServer } from "@trpc/server/adapters/standalone";
+
 import {
   addUserToRoom,
   getRoomByRoomCode,
   createRoom,
-} from "./db/transactions/room";
+} from "@/db/transactions/room";
 
 dotenv.config();
+// Export router type signature,
+// NOT the router itself.
+export type AppRouter = typeof appRouter;
+
 const db_url = process.env.db_connection_string;
 
 if (!db_url) {
@@ -22,8 +29,11 @@ if (!db_url) {
 }
 
 mongoose.connect(db_url);
+console.log("successfully connected to mongodb");
 
+//TODO separate routes
 const appRouter = router({
+  hello: publicProcedure.query(() => "hello from client"),
   getUserById: publicProcedure.input(isValidOIDString).query(async (opts) => {
     const { input: userId } = opts;
     const user = await getUserById(userId);
@@ -65,6 +75,13 @@ const appRouter = router({
     }),
 });
 
-// Export type router type signature,
-// NOT the router itself.
-export type AppRouter = typeof appRouter;
+createHTTPServer({
+  router: appRouter,
+  // createContext() {
+  //   return {};
+  // },
+  middleware: cors({
+    origin: "http://localhost:3000", // Your client URL
+    credentials: true, // Important for cookies/auth
+  }),
+}).listen(3001);

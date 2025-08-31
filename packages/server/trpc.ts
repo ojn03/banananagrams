@@ -4,12 +4,15 @@ import superjson from "superjson";
 // MAYBE create a context if useful
 // @see https://trpc.io/docs/context
 
+export type Context = {};
+export const createContext = (): Context => ({});
+
 /**
  * Initialization of tRPC backend
  * Should be done only once per backend!
  */
-const t = initTRPC.create({
-  // transformer: superjson
+const t = initTRPC.context<Context>().create({
+  // transformer: superjson 
 });
 
 /**

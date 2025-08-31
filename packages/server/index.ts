@@ -1,4 +1,4 @@
-import { router, publicProcedure } from "@/trpc";
+import { router, publicProcedure, createContext } from "@/trpc";
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -22,7 +22,7 @@ dotenv.config();
 // NOT the router itself.
 export type AppRouter = typeof appRouter;
 
-const db_url = process.env.db_connection_string;
+const db_url = process.env.DB_CONNECTION_STRING;
 
 if (!db_url) {
   throw new Error("DB url is not defined");
@@ -77,11 +77,9 @@ const appRouter = router({
 
 createHTTPServer({
   router: appRouter,
-  // createContext() {
-  //   return {};
-  // },
+  createContext,
   middleware: cors({
-    origin: "http://localhost:3000", // Your client URL
+    origin: process.env.CLIENT_URL || "http://localhost:3000", // Your client URL
     credentials: true, // Important for cookies/auth
   }),
-}).listen(3001);
+}).listen(process.env.PORT || 3001);

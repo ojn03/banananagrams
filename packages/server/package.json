@@ -13,17 +13,14 @@
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.85.6",
     "@trpc/server": "^11.5.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
-    "mongoose": "^8.18.0",
-    "superjson": "^2.2.2"
+    "mongoose": "^8.18.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/node": "^24.3.0",
-    "nodemon": "^3.1.10",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }

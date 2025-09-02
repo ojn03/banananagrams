@@ -1,6 +1,7 @@
 import { Bank } from "@/types";
 import { bankModel } from "@/db/schemas";
 import { getRoomByRoomCode } from "@/db/transactions/room";
+import defaultBank from "./defaultLetterDistribution";
 
 function bankSize(bank: Bank) {
   let bankSize = 0;
@@ -11,19 +12,28 @@ function bankSize(bank: Bank) {
   return bankSize;
 }
 
+export async function createNewBank(roomCode: string) {
+  const room = await getRoomByRoomCode(roomCode);
+
+  const newBank = await bankModel.create({
+    room: room._id,
+    vault: defaultBank,
+  });
+
+  return newBank
+}
+
 export async function peel(roomCode: string) {
   const room = await getRoomByRoomCode(roomCode);
 
   const bank = await bankModel.findOne({ room: room._id }).orFail();
 
-  const size = bankSize(bank)
+  const size = bankSize(bank);
   const numPlayers = room.users.length;
 
-  if ( numPlayers > size){
+  if (numPlayers > size) {
     // do sum
   }
 
   // bank.vault// check if not enough letters // randomly withdraw letters and add it to each user
-
- 
 }

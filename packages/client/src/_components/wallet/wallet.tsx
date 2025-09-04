@@ -1,7 +1,7 @@
 "use client";
 import useGameStateContext from "@/hooks/gameState";
 import { useEffect, useState } from "react";
-import { WalletTile } from "./WalletTile";
+import { WalletTile } from "./walletTile";
 import { trpc } from "@/utils/trpc";
 /** TODO
  *

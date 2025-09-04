@@ -1,13 +1,13 @@
 "use client";
 import { useRef } from "react";
-import { Position, TileDropData, tileInfo } from "@/types";
+import { Position, TileDropData, TileInfo } from "@/types";
 import useGameStateContext from "@/hooks/gameState";
-import { isValidTile } from "@/utils";
+import { isValidTile } from "@/utils/gameUtils";
 
 interface props {
   // the current position of the grid
   gridPos: Position;
-  info: tileInfo;
+  info: TileInfo;
   absolutePosition: Position;
   size?: number;
 }

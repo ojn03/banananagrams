@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import useGameStateContext from "@/hooks/gameState";
 import Tile from "./tile";
 import { Position } from "@/types";
-import { validateBoard } from "@/utils";
+import { validateBoard } from "@/utils/gameUtils";
 import Dump from "../dump";
 import GridCanvas from "./canvas";
 

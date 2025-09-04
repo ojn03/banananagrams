@@ -1,29 +1,16 @@
 "use client";
 
-import { DropData, Position, TileDropData, tileInfo } from "@/types";
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { DropData, GameMode, Position, TileDropData, TileInfo } from "@/types";
+import { useEffect, useState } from "react";
 import letters from "@/defaultLetters";
-import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils";
+import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils/gameUtils";
+import { GameStateContextType } from ".";
 
 //TODO toast notis for errors, peel, dump, etc
 //TODO add multiselect
-//MAYBE maybe move to hooks file
-interface gameStateContextType {
-  board: Record<string, tileInfo>;
-  wallet: string[];
-  bank: Record<string, number>;
-  spacing: number;
-  moveTile: (oldPos: Position, newPos: Position) => void;
-  addTile: (letter: string, pos: Position) => void;
-  removeTile: (gridPos: Position) => void;
-  dump: (dto: DropData) => void;
-}
+//MAYBE move to hooks file
 
-export const GameStateContext = createContext<gameStateContextType | null>(
-  null
-);
-
-const TileProvider = ({ children }: { children: ReactNode }) => {
+export const CreateSinglePlayerContext = (): GameStateContextType => {
   const spacing = 50;
   const initBank = structuredClone(letters);
   const initialWithDrawal = bankWithdrawal(initBank, 15);
@@ -32,7 +19,7 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
 
   // MAYBE make a board class
   // TODO give each tile its own unique ID. Maybe uuid or LetterNumber. So we can delete and add specific tiles
-  const [board, setBoard] = useState<Record<string, tileInfo>>({});
+  const [board, setBoard] = useState<Record<string, TileInfo>>({});
 
   const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x},${oldPos.y}`;
@@ -71,7 +58,7 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
           data: { x, y },
         } = dto as TileDropData;
 
-        removeTile(new Position(x , y ));
+        removeTile(new Position(x, y));
         break;
       case "wallet":
         if (!wallet.includes(letter)) {
@@ -145,22 +132,15 @@ const TileProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  return (
-    <GameStateContext.Provider
-      value={{
-        board,
-        spacing,
-        bank,
-        wallet,
-        addTile,
-        removeTile,
-        moveTile,
-        dump,
-      }}
-    >
-      {children}
-    </GameStateContext.Provider>
-  );
+  return {
+    board,
+    spacing,
+    bank,
+    wallet,
+    addTile,
+    removeTile,
+    moveTile,
+    dump,
+    gameMode: "single",
+  };
 };
-
-export default TileProvider;

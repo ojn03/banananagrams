@@ -1,4 +1,4 @@
-export interface tileInfo {
+export interface TileInfo {
   letter: string;
   valid: {
     vertical: boolean;
@@ -47,7 +47,7 @@ export class Position {
   }
 }
 
-export class State {}
+export type GameMode = "single" | "multi";
 
 export class TileInfo {
   letter: string;

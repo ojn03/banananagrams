@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ChoooseGameMode } from "@/_components/chooseGameMode";
+import TRPCProvider from "@/_components/trpcProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-300`}
       >
-        {children}
+        <div className="h-screen w-screen">
+          <TRPCProvider>
+            <ChoooseGameMode>{children}</ChoooseGameMode>
+          </TRPCProvider>
+        </div>
       </body>
     </html>
   );

@@ -1,8 +1,8 @@
-import { tileInfo } from "@/types";
+import { TileInfo } from "@/types";
 
 //TODO make this more efficient (undo recurcsion, find better algorithm, etc) and concise
 export function validateBoard(
-  state: Record<string, tileInfo>,
+  state: Record<string, TileInfo>,
   dictionary: Set<string>
 ) {
   Object.values(state).forEach((state) => {
@@ -78,7 +78,7 @@ export function validateBoard(
   }
 }
 
-export function isValidTile(state: Record<string, tileInfo>, pos: string ): boolean {
+export function isValidTile(state: Record<string, TileInfo>, pos: string ): boolean {
   const tile = state[pos];
 
   // if both directions are invalid, return false
@@ -109,7 +109,7 @@ export function isValidTile(state: Record<string, tileInfo>, pos: string ): bool
 
 // checks that the state is a single component and that all tiles are valid
 export function isSingleValidComponent(
-  state: Record<string, tileInfo>
+  state: Record<string, TileInfo>
 ): boolean {
   if (!state || Object.keys(state).length === 0) {
     return false;

@@ -20,7 +20,10 @@ export interface GameStateContextType {
   dump: (dto: DropData) => void;
   gameMode: GameMode;
   roomCode?: string;
-  setRoomCode?: (code: string) => void;
+  setRoomCode?: (code: string) => void; //This is required for multiplayer context
+  player : string; //TODO add id and name. default name to anonymous
+  setPlayer : (player: string) => void;
+  // TODO MultiplayerData? 
 }
 
 export const GameStateContext = createContext<GameStateContextType | null>(

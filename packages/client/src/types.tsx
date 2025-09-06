@@ -48,19 +48,3 @@ export class Position {
 }
 
 export type GameMode = "single" | "multi";
-
-export class TileInfo {
-  letter: string;
-  valid: {
-    horizontal: boolean;
-    vertical: boolean;
-  };
-
-  constructor(letter: string) {
-    this.letter = letter;
-    this.valid = {
-      horizontal: true,
-      vertical: true,
-    };
-  }
-}

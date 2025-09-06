@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ChoooseGameMode } from "@/_components/chooseGameMode";
+import { ChoooseGameMode } from "@/app/_components/chooseGameMode";
 import TRPCProvider from "@/_components/trpcProvider";
+//TODO move components to folder near where they are used
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

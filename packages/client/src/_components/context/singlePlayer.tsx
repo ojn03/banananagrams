@@ -1,6 +1,6 @@
 "use client";
 
-import { DropData, GameMode, Position, TileDropData, TileInfo } from "@/types";
+import { DropData, Position, TileDropData, TileInfo } from "@/types";
 import { useEffect, useState } from "react";
 import letters from "@/defaultLetters";
 import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils/gameUtils";
@@ -16,6 +16,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
   const initialWithDrawal = bankWithdrawal(initBank, 15);
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [bank, setBank] = useState<Record<string, number>>(initBank);
+  const [player, setPlayer] = useState<string>("anon") // TODO add player name and ID
 
   // MAYBE make a board class
   // TODO give each tile its own unique ID. Maybe uuid or LetterNumber. So we can delete and add specific tiles
@@ -142,5 +143,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     moveTile,
     dump,
     gameMode: "single",
+    player,
+    setPlayer
   };
 };

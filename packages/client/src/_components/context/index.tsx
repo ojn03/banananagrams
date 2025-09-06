@@ -1,9 +1,11 @@
 "use client";
 
-import type { DropData, GameMode, Position, TileInfo } from "@/types";
+import type { DropData, Position, TileInfo } from "@/types";
 import { createContext, ReactNode } from "react";
 import { CreateSinglePlayerContext } from "./singlePlayer";
 import { CreateMultiplayerContext } from "./multiplayer";
+import useGameModeContext from "@/hooks/gameMode";
+import { redirect } from "next/navigation";
 
 //TODO toast notis for errors, peel, dump, etc
 //TODO add multiselect
@@ -18,12 +20,11 @@ export interface GameStateContextType {
   addTile: (letter: string, pos: Position) => void;
   removeTile: (gridPos: Position) => void;
   dump: (dto: DropData) => void;
-  gameMode: GameMode;
   roomCode?: string;
   setRoomCode?: (code: string) => void; //This is required for multiplayer context
-  player : string; //TODO add id and name. default name to anonymous
-  setPlayer : (player: string) => void;
-  // TODO MultiplayerData? 
+  player: string; //TODO add id and name. default name to anonymous
+  setPlayer: (player: string) => void;
+  // TODO MultiplayerData?
 }
 
 export const GameStateContext = createContext<GameStateContextType | null>(
@@ -32,11 +33,14 @@ export const GameStateContext = createContext<GameStateContextType | null>(
 
 interface props {
   children: ReactNode;
-  gameMode: GameMode;
 }
 
-const TileProvider = ({ children, gameMode }: props) => {
-  // const [roomCode, setRoomCode] = useState<string>();
+const TileProvider = ({ children }: props) => {
+  const {  gameMode } = useGameModeContext();
+
+  if (gameMode === undefined){
+    redirect('/')
+  }
 
   const gameContext =
     gameMode === "single"

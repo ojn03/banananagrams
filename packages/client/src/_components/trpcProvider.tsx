@@ -4,13 +4,15 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc } from "../utils/trpc";
 import { httpBatchLink, loggerLink } from "@trpc/client";
-// import superjson from "superjson";
+import { GameMode } from "@/types";
+import { GameModeContext } from "./context/gameMode";
 
 export default function TRPCProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [gameMode, setGameMode] = useState<GameMode>();
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
     trpc.createClient({
@@ -32,15 +34,21 @@ export default function TRPCProvider({
            *
            * @see https://trpc.io/docs/data-transformers
            */
-          // transformer: superjson,
         }),
       ],
     })
   );
 
+  // TODO move gameMode provider
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <GameModeContext.Provider
+          value={{  gameMode, setMode: setGameMode }}
+        >
+          {children}
+        </GameModeContext.Provider>
+      </QueryClientProvider>
     </trpc.Provider>
   );
 }

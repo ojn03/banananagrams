@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ChoooseGameMode } from "@/app/_components/chooseGameMode";
 import TRPCProvider from "@/_components/trpcProvider";
 //TODO move components to folder near where they are used
 
@@ -31,9 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-300`}
       >
         <div className="h-screen w-screen">
-          <TRPCProvider>
-            <ChoooseGameMode>{children}</ChoooseGameMode>
-          </TRPCProvider>
+          <TRPCProvider>{children}</TRPCProvider>
         </div>
       </body>
     </html>

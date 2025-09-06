@@ -20,13 +20,15 @@ export async function createNewBank(roomCode: string) {
     vault: defaultBank,
   });
 
-  return newBank
+  return newBank;
 }
 
 export async function peel(roomCode: string) {
-  const room = await getRoomByRoomCode(roomCode);
+  const room = await getRoomByRoomCode(roomCode); //MAYBE have bank model store the room code instead
 
-  const bank = await bankModel.findOne({ room: room._id }).orFail();
+  const bank = await bankModel.findOne({ room: room._id }).orFail(() => {
+    throw new Error(`Bank with room Id ${room._id} not found`);
+  });
 
   const size = bankSize(bank);
   const numPlayers = room.users.length;

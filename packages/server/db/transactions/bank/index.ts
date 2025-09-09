@@ -15,10 +15,12 @@ function bankSize(bank: Bank) {
 export async function createNewBank(roomCode: string) {
   const room = await getRoomByRoomCode(roomCode);
 
-  const newBank = await bankModel.create({
+  await bankModel.create({
     room: room._id,
     vault: defaultBank,
   });
+
+  const newBank = await bankModel.findOne({ room: roomCode }).lean().orFail();
 
   return newBank;
 }

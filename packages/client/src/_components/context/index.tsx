@@ -15,10 +15,11 @@ export interface GameStateContextType {
   board: Record<string, TileInfo>;
   wallet: string[];
   bank: Record<string, number>;
+  setBank?: (bank: Record<string, number>) => void
   spacing: number;
   moveTile: (oldPos: Position, newPos: Position) => void;
   addTile: (letter: string, pos: Position) => void;
-  removeTile: (gridPos: Position) => void;
+  // removeTile: (gridPos: Position) => void;
   dump: (dto: DropData) => void;
   roomCode?: string;
   setRoomCode?: (code: string) => void; //This is required for multiplayer context

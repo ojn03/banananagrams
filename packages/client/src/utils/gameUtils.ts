@@ -157,6 +157,7 @@ export function isSingleValidComponent(
 }
 
 // remove from bank and add to wallet
+// only for single player mode
 export function bankWithdrawal(
   bank: Record<string, number>,
   amount: number

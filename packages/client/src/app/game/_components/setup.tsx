@@ -16,7 +16,7 @@ export default function Setup({ dictionary }: { dictionary: Set<string> }) {
   return !player ? (
     <ChooseName setPlayer={setPlayer} />
   ) : gameMode === "multi" && roomCode == undefined ? (
-    <JoinOrCreateRoom setRoomCode={setRoomCode!} />
+    <JoinOrCreateRoom />
   ) : (
     <Game dictionary={dictionary} />
   );
@@ -43,17 +43,18 @@ function ChooseName({ setPlayer }: { setPlayer: (name: string) => void }) {
   );
 }
 
-function JoinOrCreateRoom({
-  setRoomCode,
-}: {
-  setRoomCode: (code: string) => void;
-}) {
-  const [inputCode, setInputCode] = useState<string>("");
-  const { player } = useGameStateContext();
+function JoinOrCreateRoom() {
+  const [inputJoinCode, setInputJoinCode] = useState<string>("");
+  const { player, setPlayer, roomCode, setRoomCode, setBank } =
+    useGameStateContext();
+
+  if (!setRoomCode || !setBank) {
+    throw new Error("multiplayer context functions missing");
+  }
 
   const joinRoomMutation = trpc.room.addUserToRoom.useMutation({
     onSuccess: (room) => {
-      setRoomCode(room.room_code);
+      setRoomCode!(room.room_code);
     },
     onError: (err) => {
       console.log(err.message);
@@ -64,6 +65,16 @@ function JoinOrCreateRoom({
   const createRoomMutation = trpc.room.createRoom.useMutation({
     onSuccess: (room) => {
       setRoomCode(room.room_code);
+      return room;
+    },
+    onError: (err) => {
+      console.log(err.message);
+    },
+  });
+
+  const createBankMutation = trpc.bank.createNewBank.useMutation({
+    onSuccess: (bank) => {
+      setBank(bank.vault);
     },
     onError: (err) => {
       console.log(err.message);
@@ -72,16 +83,20 @@ function JoinOrCreateRoom({
 
   function joinRoom() {
     joinRoomMutation.mutate({
-      roomCode: inputCode,
+      roomCode: inputJoinCode,
       userId: player,
     });
+
+    createBankMutation.mutate(roomCode!)
   }
 
-  function newRoom() {
+  function newGame() {
     createRoomMutation.mutate({
       roomName: "someRoom", //TODO make this a user input
       userId: player,
     });
+
+    createBankMutation.mutate(roomCode!);
   }
 
   return (
@@ -94,8 +109,8 @@ function JoinOrCreateRoom({
           <h4 className="text-xl font-bold mb-2 text-neutral-800">Join Room</h4>
           <input
             type="text"
-            value={inputCode}
-            onChange={(e) => setInputCode(e.target.value)}
+            value={inputJoinCode}
+            onChange={(e) => setInputJoinCode(e.target.value)}
             placeholder="Enter room code"
             className="flex-1 p-2 border-2 rounded w-full mb-2 outline-0 focus:ring focus:ring-black"
           />
@@ -110,10 +125,10 @@ function JoinOrCreateRoom({
         <div className="text-center">
           <p className="text-gray-500 m-2">- or -</p>
           <button
-            onClick={newRoom}
+            onClick={newGame}
             className="bg-neutral-500 text-white py-2 rounded hover:bg-neutral-600 w-full cursor-pointer"
           >
-            Create New Room
+            Create New Game
           </button>
         </div>
       </div>

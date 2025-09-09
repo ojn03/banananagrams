@@ -11,7 +11,6 @@ import { GameStateContextType } from ".";
 //MAYBE move to hooks file
 
 export const CreateSinglePlayerContext = (): GameStateContextType => {
-  const spacing = 50;
   const initBank = structuredClone(letters);
   const initialWithDrawal = bankWithdrawal(initBank, 15);
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
@@ -93,6 +92,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     }
   }, [bank, board, wallet]);
 
+  //Adds a tile from wallet to board
   const addTile = (letter: string, gridPos: Position) => {
     //TODO enable swapping grid and wallet tiles
     if (wallet.includes(letter) && !(gridPos.toString() in board)) {
@@ -118,6 +118,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     }
   };
 
+  // 
   const removeTile = (gridPos: Position) => {
     if (!(gridPos.toString() in board)) {
       //TODO Toast
@@ -135,11 +136,10 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
 
   return {
     board,
-    spacing,
+    spacing: 50,
     bank,
     wallet,
     addTile,
-    removeTile,
     moveTile,
     dump,
     player,

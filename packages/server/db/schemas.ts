@@ -55,6 +55,11 @@ const roomSchema = new mongoose.Schema<Room>(
         ref: "user",
       },
     ],
+    hasBegun: {
+      type: Boolean,
+      ref: "user",
+      default: false,
+    },
   },
   {
     collection: "room",

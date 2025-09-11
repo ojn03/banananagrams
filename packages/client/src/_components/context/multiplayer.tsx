@@ -1,6 +1,7 @@
-import { Position, TileInfo, User } from "@/types";
+import { BanananagramsSocket, Position, TileInfo, User } from "@/types";
 import { GameStateContextType } from ".";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { io } from "socket.io-client";
 
 // export interface GameStateContextType {
 //   board: Record<string, TileInfo>;
@@ -18,10 +19,21 @@ import { useState } from "react";
 // }
 
 export function CreateMultiplayerContext(): GameStateContextType {
-  const initialWithDrawal = ["a", "b", "c"]; // TODO tpc.bank.withdrawal
+  const initialWithDrawal = ["a", "b", "c"]; // TODO trpc.bank.withdrawal
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [board, setBoard] = useState<Record<string, TileInfo>>({});
-  const [user, setUser] = useState<User>({ name: "", id: "" });
+  const socketRef = useRef<BanananagramsSocket>(null);
+  const serverURL = process.env.NEXT_PUBLIC_BASE_SERVER || "http://localhost:3001";
+
+  useEffect(() => {
+    socketRef.current = io(serverURL);
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
+  }, [serverURL]);
+
+  const [user, setUser] = useState<User>({ name: "", id: ""});
   const [roomCode, setRoomCode] = useState<string>("");
 
   const moveTile = (oldPos: Position, newPos: Position) => {
@@ -81,6 +93,6 @@ export function CreateMultiplayerContext(): GameStateContextType {
     addTile,
     wallet,
 
-    multiplayerState: { user, setUser, roomCode, setRoomCode },
-  } as any; //eslint-disable-line
+    multiplayerState: { user, setUser, roomCode, setRoomCode, socket: socketRef.current },
+  } as any //eslint-disable-line
 }

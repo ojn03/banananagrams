@@ -1,7 +1,13 @@
 "use client";
 
-import type { DropData, Position, TileInfo, User } from "@/types";
-import { createContext, ReactNode } from "react";
+import type {
+  BanananagramsSocket,
+  DropData,
+  Position,
+  TileInfo,
+  User,
+} from "@/types";
+import { createContext, Dispatch, ReactNode, SetStateAction } from "react";
 import { CreateSinglePlayerContext } from "./singlePlayer";
 import { CreateMultiplayerContext } from "./multiplayer";
 import useGameModeContext from "@/hooks/gameMode";
@@ -16,8 +22,9 @@ interface MultiplayerStateType {
   roomCode: string;
   setRoomCode: (code: string) => void;
   user: User;
-  setUser: (user: User) => void;
+  setUser: Dispatch<SetStateAction<User>>;
   setBank: (bank: Record<string, number>) => void;
+  socket: BanananagramsSocket;
 }
 
 export interface GameStateContextType {

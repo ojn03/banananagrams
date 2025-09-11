@@ -20,7 +20,7 @@ export async function createNewBank(roomCode: string) {
     vault: defaultBank,
   });
 
-  const newBank = await bankModel.findOne({ room: roomCode }).lean().orFail();
+  const newBank = await bankModel.findOne({ room: room._id }).lean().orFail();
 
   return newBank;
 }

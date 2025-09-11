@@ -21,7 +21,7 @@ export default function Wallet() {
   useEffect(() => {
     setLetters(wallet);
   }, [wallet]);
-  if (isLoading) return null;
+  if (isLoading) return null; //TODO show a loading giv or svg or sum
   if (error) return <div>Error: {error.message}</div>;
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {

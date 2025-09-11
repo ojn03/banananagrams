@@ -36,19 +36,31 @@ const server = createHTTPServer({
     origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true,
   }),
-})
-
-const socket: BanananagramsSocket = new Server(server, {
-  cors: { origin: '*' },
 });
 
-process.on('SIGINT', () => {
+const io: BanananagramsSocket = new Server(server, {
+  cors: { origin: process.env.CLIENT_URL || "http://localhost:3000" },
+});
+
+io.on("connection", (socket) => {
+  console.log("a user has connected with socket id", socket.id);
+  socket.on("joinRoom", (roomCode) => {
+    socket.join(roomCode);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+    // Perform cleanup or update user counts here
+  });
+});
+
+process.on("SIGINT", () => {
   server.close(() => {
     mongoose.disconnect();
-    console.log('Server closed.');
+    console.log("Server closed.");
     process.exit(0);
   });
-  socket.close();
+  io.close();
 });
 
 server.listen(port);

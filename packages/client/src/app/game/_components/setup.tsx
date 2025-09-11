@@ -5,7 +5,7 @@ import useGameModeContext from "@/hooks/gameMode";
 import useGameStateContext from "@/hooks/gameState";
 import { User } from "@/types";
 import { trpc } from "@/utils/trpc";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 //TODO move setup to initializatino of gameSettings/mode
 export default function Setup({ dictionary }: { dictionary: Set<string> }) {
@@ -20,7 +20,7 @@ export default function Setup({ dictionary }: { dictionary: Set<string> }) {
     throw new Error("multiplayer state not defined");
   }
 
-  const { user, roomCode, setRoomCode, setUser } = multiplayerState;
+  const { user, roomCode, setUser } = multiplayerState;
 
   return !(user.id && user.name) ? (
     <ChooseName setUser={setUser} />
@@ -31,7 +31,8 @@ export default function Setup({ dictionary }: { dictionary: Set<string> }) {
   );
 }
 
-function ChooseName({ setUser }: { setUser: (user: User) => void }) {
+function ChooseName({ setUser }: { setUser: Dispatch<SetStateAction<User>> }) {
+  const [userNameInput, setUserNameInput] = useState("anonymous");
   const newUserMutation = trpc.user.createUser.useMutation({
     onSuccess: (user) => {
       setUser({ id: user._id, name: user.name });
@@ -42,13 +43,31 @@ function ChooseName({ setUser }: { setUser: (user: User) => void }) {
   });
 
   function newUser() {
-    newUserMutation.mutate("anonymous"); //TODO take user input instead
+    newUserMutation.mutate(userNameInput);
   }
 
   return (
-    <button className="w-full h-full" onClick={newUser}>
-      pick a name
-    </button>
+    <div className="w-full h-full bg-neutral-300 flex justify-center items-center ">
+      <div className="bg-white flex flex-col justify-center items-center w-1/4 rounded-lg p-4 text-black">
+        <h4 className="text-xl font-bold mb-2 text-neutral-800">
+          Choose a Name
+        </h4>
+        <input
+          type="text"
+          required
+          className="p-2 border-1 rounded w-full mb-2 outline-0 focus:ring focus:ring-black"
+          value={userNameInput}
+          placeholder="john doe"
+          onChange={(e) => setUserNameInput(e.target.value)}
+        />
+        <button
+          className="bg-neutral-500 text-white py-2 rounded hover:bg-neutral-600 cursor-pointer w-full "
+          onClick={newUser}
+        >
+          submit
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -56,13 +75,11 @@ function JoinOrCreateRoom() {
   const [inputJoinCode, setInputJoinCode] = useState<string>("");
   const context = useGameStateContext();
 
-  const { setBank } = context;
-
-  const { user, setUser, roomCode, setRoomCode } = context.multiplayerState!;
+  const { user, setRoomCode, setBank } = context.multiplayerState!;
 
   const joinRoomMutation = trpc.room.addUserToRoom.useMutation({
     onSuccess: (room) => {
-      setRoomCode!(room.room_code);
+      setRoomCode(room.room_code);
     },
     onError: (err) => {
       console.log(err.message);
@@ -94,33 +111,31 @@ function JoinOrCreateRoom() {
       roomCode: inputJoinCode,
       userId: user.id,
     });
-
-    createBankMutation.mutate(roomCode!);
   }
 
-  function newGame() {
-    createRoomMutation.mutate({
-      roomName: "someRoom", //TODO make this a user input
-      userId: user.id,
-    });
-
-    createBankMutation.mutate(roomCode!);
+  async function newGame() {
+    await createRoomMutation
+      .mutateAsync({
+        roomName: "someRoom", //MAYBE either remove room name or let user pick one
+        userId: user.id,
+      })
+      .then((room) => {
+        createBankMutation.mutate(room.room_code);
+      });
   }
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center bg-neutral-300">
       <div className="bg-white p-4 rounded-lg shadow-md w-full max-w-md ">
-        <div
-          // onSubmit={joinExistingRoom}
-          className="flex flex-col justify-center items-center text-black"
-        >
+        <div className="flex flex-col justify-center items-center text-black">
           <h4 className="text-xl font-bold mb-2 text-neutral-800">Join Room</h4>
           <input
             type="text"
+            required
             value={inputJoinCode}
             onChange={(e) => setInputJoinCode(e.target.value)}
             placeholder="Enter room code"
-            className="flex-1 p-2 border-2 rounded w-full mb-2 outline-0 focus:ring focus:ring-black"
+            className="flex-1 p-2 border-[1.5] rounded w-full mb-2 outline-0 focus:ring focus:ring-black"
           />
           <button
             onClick={joinRoom}

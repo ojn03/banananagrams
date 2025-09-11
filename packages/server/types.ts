@@ -10,17 +10,19 @@ export interface Room {
   _id: Types.ObjectId;
   name: string;
   room_code: string;
-  host: string
+  host: string;
+  hasBegun: boolean;
   users: User[];
 }
 
-export type BanananagramsSocket = Server<ServerToClientEvents>
+export type BanananagramsSocket = Server<ServerToClientEvents>;
 
 /**
  * Interface representing the possible events that the server can emit to the client.
  */
 export interface ServerToClientEvents {
   peel: (payload: {}) => void;
+  joinRoom: (roomCode: string) => void;
 }
 
 export interface Bank {

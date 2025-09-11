@@ -1,3 +1,5 @@
+import { Socket } from 'socket.io-client';
+
 export interface TileInfo {
   letter: string;
   valid: {
@@ -53,3 +55,14 @@ export class Position {
 }
 
 export type GameMode = "single" | "multi";
+
+
+export type BanananagramsSocket = Socket<ServerToClientEvents>
+
+/**
+ * Interface representing the possible events that the server can emit to the client.
+ */
+export interface ServerToClientEvents {
+  peel: (payload: undefined) => void;
+  joinRoom: (roomCode: string) => void
+}

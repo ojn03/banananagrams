@@ -14,6 +14,7 @@ export async function createRoom(roomName: string, userId: string) {
   await roomModel.create({
     name: roomName,
     users: [userId],
+    host: userId,
     room_code,
   });
 

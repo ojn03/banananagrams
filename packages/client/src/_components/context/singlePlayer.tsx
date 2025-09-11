@@ -15,7 +15,6 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
   const initialWithDrawal = bankWithdrawal(initBank, 15);
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [bank, setBank] = useState<Record<string, number>>(initBank);
-  const [player, setPlayer] = useState<string>('') // TODO add player name and ID
 
   // MAYBE make a board class
   // TODO give each tile its own unique ID. Maybe uuid or LetterNumber. So we can delete and add specific tiles
@@ -142,7 +141,5 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     addTile,
     moveTile,
     dump,
-    player,
-    setPlayer
   };
 };

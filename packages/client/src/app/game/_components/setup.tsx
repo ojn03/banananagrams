@@ -3,29 +3,38 @@ import InfiniteGrid from "@/_components/grid/grid";
 import Wallet from "@/_components/wallet/wallet";
 import useGameModeContext from "@/hooks/gameMode";
 import useGameStateContext from "@/hooks/gameState";
+import { User } from "@/types";
 import { trpc } from "@/utils/trpc";
 import { useState } from "react";
 
 //TODO move setup to initializatino of gameSettings/mode
 export default function Setup({ dictionary }: { dictionary: Set<string> }) {
   const { gameMode } = useGameModeContext();
-  const { player, setPlayer, roomCode, setRoomCode } = useGameStateContext();
+  const { multiplayerState } = useGameStateContext();
 
-  //TODO check nullables arent null if multi
+  if (gameMode === "single") {
+    return <Game dictionary={dictionary} />;
+  }
 
-  return !player ? (
-    <ChooseName setPlayer={setPlayer} />
-  ) : gameMode === "multi" && roomCode == undefined ? (
+  if (multiplayerState === undefined) {
+    throw new Error("multiplayer state not defined");
+  }
+
+  const { user, roomCode, setRoomCode, setUser } = multiplayerState;
+
+  return !(user.id && user.name) ? (
+    <ChooseName setUser={setUser} />
+  ) : roomCode === "" ? (
     <JoinOrCreateRoom />
   ) : (
     <Game dictionary={dictionary} />
   );
 }
 
-function ChooseName({ setPlayer }: { setPlayer: (name: string) => void }) {
+function ChooseName({ setUser }: { setUser: (user: User) => void }) {
   const newUserMutation = trpc.user.createUser.useMutation({
     onSuccess: (user) => {
-      setPlayer(user._id);
+      setUser({ id: user._id, name: user.name });
     },
     onError: (err) => {
       console.log(err.message);
@@ -45,12 +54,11 @@ function ChooseName({ setPlayer }: { setPlayer: (name: string) => void }) {
 
 function JoinOrCreateRoom() {
   const [inputJoinCode, setInputJoinCode] = useState<string>("");
-  const { player, setPlayer, roomCode, setRoomCode, setBank } =
-    useGameStateContext();
+  const context = useGameStateContext();
 
-  if (!setRoomCode || !setBank) {
-    throw new Error("multiplayer context functions missing");
-  }
+  const { setBank } = context;
+
+  const { user, setUser, roomCode, setRoomCode } = context.multiplayerState!;
 
   const joinRoomMutation = trpc.room.addUserToRoom.useMutation({
     onSuccess: (room) => {
@@ -84,16 +92,16 @@ function JoinOrCreateRoom() {
   function joinRoom() {
     joinRoomMutation.mutate({
       roomCode: inputJoinCode,
-      userId: player,
+      userId: user.id,
     });
 
-    createBankMutation.mutate(roomCode!)
+    createBankMutation.mutate(roomCode!);
   }
 
   function newGame() {
     createRoomMutation.mutate({
       roomName: "someRoom", //TODO make this a user input
-      userId: player,
+      userId: user.id,
     });
 
     createBankMutation.mutate(roomCode!);

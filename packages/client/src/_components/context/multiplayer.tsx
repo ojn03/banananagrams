@@ -1,7 +1,6 @@
-import { Position, TileInfo } from "@/types";
+import { Position, TileInfo, User } from "@/types";
 import { GameStateContextType } from ".";
 import { useState } from "react";
-import { trpc } from "@/utils/trpc";
 
 // export interface GameStateContextType {
 //   board: Record<string, TileInfo>;
@@ -14,16 +13,15 @@ import { trpc } from "@/utils/trpc";
 //   dump: (dto: DropData) => void;
 //   roomCode?: string;
 //   setRoomCode?: (code: string) => void; //This is required for multiplayer context
-//   player: string; //TODO add id and name. default name to anonymous
+//   player: string;
 //   setPlayer: (player: string) => void;
-//   // TODO MultiplayerData?
 // }
 
 export function CreateMultiplayerContext(): GameStateContextType {
   const initialWithDrawal = ["a", "b", "c"]; // TODO tpc.bank.withdrawal
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [board, setBoard] = useState<Record<string, TileInfo>>({});
-  const [player, setPlayer] = useState<string>(""); // TODO add player name and ID
+  const [user, setUser] = useState<User>({ name: "", id: "" });
   const [roomCode, setRoomCode] = useState<string>("");
 
   const moveTile = (oldPos: Position, newPos: Position) => {
@@ -82,9 +80,7 @@ export function CreateMultiplayerContext(): GameStateContextType {
     moveTile,
     addTile,
     wallet,
-    player,
-    setPlayer,
-    roomCode,
-    setRoomCode,
+
+    multiplayerState: { user, setUser, roomCode, setRoomCode },
   } as any; //eslint-disable-line
 }

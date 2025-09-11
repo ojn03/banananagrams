@@ -20,19 +20,20 @@ import { Bank, Room, User } from "@/types";
 // MAYBE convert file to folder with file for each model
 // TODO move each user's board state from client to server
 
-const userSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema<User>(
   {
     name: {
       type: String,
       required: true,
     },
+    // socket:
   },
   { collection: "user" }
 );
 
 const userModel = mongoose.model<User>("user", userSchema);
 
-const roomSchema = new mongoose.Schema(
+const roomSchema = new mongoose.Schema<Room>(
   {
     name: {
       type: String,
@@ -43,7 +44,17 @@ const roomSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    users: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+    host: {
+      type: String,
+      ref: "user",
+      required: true,
+    },
+    users: [
+      {
+        type: String,
+        ref: "user",
+      },
+    ],
   },
   {
     collection: "room",
@@ -52,10 +63,10 @@ const roomSchema = new mongoose.Schema(
 
 const roomModel = mongoose.model<Room>("room", roomSchema);
 
-const bankSchema = new mongoose.Schema(
+const bankSchema = new mongoose.Schema<Bank>(
   {
     room: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true,
       unique: true,
       ref: "room",
@@ -69,6 +80,6 @@ const bankSchema = new mongoose.Schema(
   { collection: "bank" }
 );
 
-const bankModel = mongoose.model<Bank>("bank", bankSchema);
+const bankModel = mongoose.model("bank", bankSchema);
 
 export { userModel, roomModel, bankModel };

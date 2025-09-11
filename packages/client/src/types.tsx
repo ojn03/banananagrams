@@ -6,6 +6,11 @@ export interface TileInfo {
   };
 }
 
+export interface User {
+  name: string;
+  id: string;
+}
+
 export interface DropData {
   type: string;
   data: Record<string, unknown>;

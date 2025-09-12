@@ -1,29 +1,15 @@
-import { BanananagramsSocket, Position, TileInfo, User } from "@/types";
-import { GameStateContextType } from ".";
+import { BanananagramsSocket, Position, Room, TileInfo, User } from "@/types";
+import { GameStateContextType } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-
-// export interface GameStateContextType {
-//   board: Record<string, TileInfo>;
-//   wallet: string[];
-//   bank: Record<string, number>;
-//   spacing: number;
-//   moveTile: (oldPos: Position, newPos: Position) => void;
-//   addTile: (letter: string, pos: Position) => void;
-//   removeTile: (gridPos: Position) => void;
-//   dump: (dto: DropData) => void;
-//   roomCode?: string;
-//   setRoomCode?: (code: string) => void; //This is required for multiplayer context
-//   player: string;
-//   setPlayer: (player: string) => void;
-// }
 
 export function CreateMultiplayerContext(): GameStateContextType {
   const initialWithDrawal = ["a", "b", "c"]; // TODO trpc.bank.withdrawal
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [board, setBoard] = useState<Record<string, TileInfo>>({});
   const socketRef = useRef<BanananagramsSocket>(null);
-  const serverURL = process.env.NEXT_PUBLIC_BASE_SERVER || "http://localhost:3001";
+  const serverURL =
+    process.env.NEXT_PUBLIC_BASE_SERVER || "http://localhost:3001";
 
   useEffect(() => {
     socketRef.current = io(serverURL);
@@ -33,8 +19,23 @@ export function CreateMultiplayerContext(): GameStateContextType {
     };
   }, [serverURL]);
 
-  const [user, setUser] = useState<User>({ name: "", id: ""});
-  const [roomCode, setRoomCode] = useState<string>("");
+  const socket = socketRef.current;
+  if (socket !== null) {
+    socket.on("roomUpdated", (room) => {
+      console.log("room updated");
+      setRoom({ ...room });
+    });
+  }
+
+  const [user, setUser] = useState<User>({ name: "", _id: "" });
+  const [room, setRoom] = useState<Room>({
+    _id: "",
+    users: [],
+    room_code: "",
+    host: "",
+    hasBegun: false,
+    name: "",
+  });
 
   const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x},${oldPos.y}`;
@@ -93,6 +94,12 @@ export function CreateMultiplayerContext(): GameStateContextType {
     addTile,
     wallet,
 
-    multiplayerState: { user, setUser, roomCode, setRoomCode, socket: socketRef.current },
-  } as any //eslint-disable-line
+    multiplayerState: {
+      user,
+      setUser,
+      room,
+      socket: socketRef.current!,
+      setRoom,
+    },
+  } as any; //eslint-disable-line
 }

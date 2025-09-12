@@ -15,14 +15,15 @@ export interface Room {
   users: User[];
 }
 
-export type BanananagramsSocket = Server<ServerToClientEvents>;
+export type BanananagramsSocket = Server<SocketEvents>;
 
 /**
  * Interface representing the possible events that the server can emit to the client.
  */
-export interface ServerToClientEvents {
+export interface SocketEvents {
   peel: (payload: {}) => void;
-  joinRoom: (roomCode: string) => void;
+  joinRoom: (payload: { user: string; roomCode: string }) => void;
+  roomUpdated: (room: Room) => void;
 }
 
 export interface Bank {

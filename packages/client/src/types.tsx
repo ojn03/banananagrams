@@ -1,4 +1,5 @@
-import { Socket } from 'socket.io-client';
+import { Dispatch, SetStateAction } from "react";
+import { Socket } from "socket.io-client";
 
 export interface TileInfo {
   letter: string;
@@ -10,7 +11,22 @@ export interface TileInfo {
 
 export interface User {
   name: string;
-  id: string;
+  _id: string;
+}
+
+export interface Room {
+  _id: string;
+  name: string;
+  room_code: string;
+  host: string;
+  hasBegun: boolean;
+  users: User[];
+}
+
+export interface Bank {
+  _id: string;
+  room: string;
+  vault: Record<string, number>;
 }
 
 export interface DropData {
@@ -56,13 +72,38 @@ export class Position {
 
 export type GameMode = "single" | "multi";
 
-
-export type BanananagramsSocket = Socket<ServerToClientEvents>
+export type BanananagramsSocket = Socket<SocketEvents>;
 
 /**
  * Interface representing the possible events that the server can emit to the client.
  */
-export interface ServerToClientEvents {
+export interface SocketEvents {
+  //TODO create socket type
   peel: (payload: undefined) => void;
-  joinRoom: (roomCode: string) => void
+  joinRoom: (payload: { user: string; roomCode: string }) => void; // MAYBE do this through http route instead
+  roomUpdated: (room: Room) => void;
+}
+
+//TODO toast notis for errors, peel, dump, etc
+//TODO add multiselect
+//MAYBE move to hooks file
+//MAYBE move gamestatecontexttype to types file
+interface MultiplayerStateType {
+  room: Room;
+  setRoom: (room: Room) => void;
+  user: User;
+  setUser: Dispatch<SetStateAction<User>>;
+  setBank: (bank: Record<string, number>) => void;
+  socket: BanananagramsSocket;
+}
+
+export interface GameStateContextType {
+  board: Record<string, TileInfo>;
+  wallet: string[];
+  bank: Record<string, number>;
+  spacing: number;
+  moveTile: (oldPos: Position, newPos: Position) => void;
+  addTile: (letter: string, pos: Position) => void;
+  dump: (dto: DropData) => void;
+  multiplayerState?: MultiplayerStateType;
 }

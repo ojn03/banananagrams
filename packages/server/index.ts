@@ -6,6 +6,7 @@ import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import { bankRouter, userRouter, roomRouter } from "./routers";
 import { BanananagramsSocket } from "./types";
 import { Server } from "socket.io";
+import { addUserToRoom } from "./db/transactions/room";
 
 dotenv.config();
 
@@ -38,14 +39,17 @@ const server = createHTTPServer({
   }),
 });
 
-const io: BanananagramsSocket = new Server(server, {
+export const ioSocket: BanananagramsSocket = new Server(server, {
   cors: { origin: process.env.CLIENT_URL || "http://localhost:3000" },
 });
 
-io.on("connection", (socket) => {
+// MAYBE store user data in socket.data
+ioSocket.on("connection", (socket) => {
   console.log("a user has connected with socket id", socket.id);
-  socket.on("joinRoom", (roomCode) => {
+  socket.on("joinRoom", async ({ roomCode, user }) => {
     socket.join(roomCode);
+    const room = await addUserToRoom(user, roomCode);
+    ioSocket.to(roomCode).emit("roomUpdated", room);
   });
 
   socket.on("disconnect", () => {
@@ -60,7 +64,7 @@ process.on("SIGINT", () => {
     console.log("Server closed.");
     process.exit(0);
   });
-  io.close();
+  ioSocket.close();
 });
 
 server.listen(port);

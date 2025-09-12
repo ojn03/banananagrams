@@ -7,6 +7,7 @@ import { User } from "@/types";
 import { trpc } from "@/utils/trpc";
 import { Dispatch, SetStateAction, useState } from "react";
 
+//TODO create reusable components and split this file up
 //TODO move setup to initializatino of gameSettings/mode
 export default function Setup({ dictionary }: { dictionary: Set<string> }) {
   const { gameMode } = useGameModeContext();
@@ -20,14 +21,58 @@ export default function Setup({ dictionary }: { dictionary: Set<string> }) {
     throw new Error("multiplayer state not defined");
   }
 
-  const { user, roomCode, setUser } = multiplayerState;
+  const {
+    user,
+    room: { room_code, hasBegun },
+    setUser,
+  } = multiplayerState;
 
-  return !(user.id && user.name) ? (
+  return !(user._id && user.name) ? (
     <ChooseName setUser={setUser} />
-  ) : roomCode === "" ? (
+  ) : room_code === "" ? (
     <JoinOrCreateRoom />
+  ) : !hasBegun ? (
+    <WaitingRoom />
   ) : (
     <Game dictionary={dictionary} />
+  );
+}
+
+function WaitingRoom() {
+  const { user, room, setRoom } = useGameStateContext().multiplayerState!;
+
+  const startGame = trpc.room.startGame.useMutation({
+    onSuccess: (room) => {
+      setRoom({ ...room });
+    },
+    onError: (err) => {
+      console.log(err.message);
+    },
+  });
+
+  async function onStart() {
+    startGame.mutate(room.room_code);
+  }
+
+  const isHost = room.host === user._id;
+
+  return (
+    <div className="w-full h-full bg-neutral-300 flex items-center justify-evenly text-neutral-800">
+      <div className="bg-white flex flex-col items-center justify-evenly text-neutral-800 gap-3 p-3">
+        <h4>waiting room</h4>
+        <div>room code: {room.room_code}</div>
+        <div>players: {room.users.map((user) => user.name).join(",")}</div>
+
+        {isHost && (
+          <button
+            className="bg-neutral-500 text-white py-2 rounded hover:bg-neutral-600 w-full cursor-pointer"
+            onClick={onStart}
+          >
+            start Game
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -35,7 +80,7 @@ function ChooseName({ setUser }: { setUser: Dispatch<SetStateAction<User>> }) {
   const [userNameInput, setUserNameInput] = useState("anonymous");
   const newUserMutation = trpc.user.createUser.useMutation({
     onSuccess: (user) => {
-      setUser({ id: user._id, name: user.name });
+      setUser({ ...user });
     },
     onError: (err) => {
       console.log(err.message);
@@ -75,23 +120,10 @@ function JoinOrCreateRoom() {
   const [inputJoinCode, setInputJoinCode] = useState<string>("");
   const context = useGameStateContext();
 
-  const { user, setRoomCode, setBank } = context.multiplayerState!;
-
-  const joinRoomMutation = trpc.room.addUserToRoom.useMutation({
-    onSuccess: (room) => {
-      setRoomCode(room.room_code);
-    },
-    onError: (err) => {
-      console.log(err.message);
-    },
-  });
+  const { user, setBank, socket } = context.multiplayerState!;
 
   //TODO add a screen to wait for others to join the room
   const createRoomMutation = trpc.room.createRoom.useMutation({
-    onSuccess: (room) => {
-      setRoomCode(room.room_code);
-      return room;
-    },
     onError: (err) => {
       console.log(err.message);
     },
@@ -106,10 +138,10 @@ function JoinOrCreateRoom() {
     },
   });
 
-  function joinRoom() {
-    joinRoomMutation.mutate({
+  async function joinRoom() {
+    socket.emit("joinRoom", {
       roomCode: inputJoinCode,
-      userId: user.id,
+      user: user._id,
     });
   }
 
@@ -117,10 +149,11 @@ function JoinOrCreateRoom() {
     await createRoomMutation
       .mutateAsync({
         roomName: "someRoom", //MAYBE either remove room name or let user pick one
-        userId: user.id,
+        userId: user._id,
       })
       .then((room) => {
         createBankMutation.mutate(room.room_code);
+        socket.emit("joinRoom", { user: user._id, roomCode: room.room_code });
       });
   }
 

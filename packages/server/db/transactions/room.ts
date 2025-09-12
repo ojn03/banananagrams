@@ -23,6 +23,22 @@ export async function createRoom(roomName: string, userId: string) {
   return room;
 }
 
+export async function startGame(roomCode: string) {
+  const room = await roomModel
+    .findOneAndUpdate(
+      { room_code: roomCode },
+      { hasBegun: true },
+      { new: true }
+    )
+    .populate("users")
+    .lean()
+    .orFail(() => {
+      throw new Error(`Room with code ${roomCode} not found`);
+    });
+    
+  return room;
+}
+
 export async function getRoomByRoomCode(roomCode: string) {
   const room = await roomModel
     .findOne({ room_code: roomCode })

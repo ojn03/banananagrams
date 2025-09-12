@@ -1,6 +1,16 @@
-import { addUserToRoom, createRoom, getRoomByRoomCode } from "@/db/transactions/room";
+import {
+  addUserToRoom,
+  createRoom,
+  getRoomByRoomCode,
+  startGame,
+} from "@/db/transactions/room";
 import { router, publicProcedure } from "@/trpc";
-import { isString, validateAddUserToRoomInput, validateCreateRoomInput } from "@/validators";
+import {
+  isString,
+  validateAddUserToRoomInput,
+  validateCreateRoomInput,
+} from "@/validators";
+import { ioSocket } from "@/index";
 
 const roomRouter = router({
   addUserToRoom: publicProcedure
@@ -30,6 +40,16 @@ const roomRouter = router({
       const newRoom = await createRoom(roomName, userId);
       return newRoom;
     }),
+
+  startGame: publicProcedure.input(isString).mutation(async (opts) => {
+    const { input: roomCode } = opts;
+
+    const room = await startGame(roomCode);
+
+    ioSocket.to(roomCode).emit("roomUpdated", room);
+
+    return room;
+  }),
 });
 
-export default roomRouter
+export default roomRouter;

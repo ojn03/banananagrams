@@ -4,7 +4,7 @@ import { DropData, Position, TileDropData, TileInfo } from "@/types";
 import { useEffect, useState } from "react";
 import letters from "@/defaultLetters";
 import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils/gameUtils";
-import { GameStateContextType } from ".";
+import { GameStateContextType } from "@/types";
 
 //TODO toast notis for errors, peel, dump, etc
 //TODO add multiselect

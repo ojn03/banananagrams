@@ -1,6 +1,5 @@
 import { isValidObjectId } from "mongoose";
 
-
 function validateObject<T extends Record<string, unknown>>(
   obj: unknown,
   validators: { [K in keyof T]: (val: unknown) => T[K] }
@@ -11,11 +10,17 @@ function validateObject<T extends Record<string, unknown>>(
 
   const allowedFields = Object.keys(validators);
   const input = obj as Record<string, unknown>;
-  
+
   // Check for extra fields
-  const extraFields = Object.keys(input).filter(key => !allowedFields.includes(key));
+  const extraFields = Object.keys(input).filter(
+    (key) => !allowedFields.includes(key)
+  );
   if (extraFields.length > 0) {
-    throw new Error(`Unexpected fields: ${extraFields.join(', ')}. Allowed: ${allowedFields.join(', ')}`);
+    throw new Error(
+      `Unexpected fields: ${extraFields.join(
+        ", "
+      )}. Allowed: ${allowedFields.join(", ")}`
+    );
   }
 
   // Check for missing required fields and validate
@@ -24,7 +29,9 @@ function validateObject<T extends Record<string, unknown>>(
     try {
       result[key as keyof T] = validator(input[key]);
     } catch (error) {
-      throw new Error(`Field '${key}': ${error instanceof Error ? error.message : error}`);
+      throw new Error(
+        `Field '${key}': ${error instanceof Error ? error.message : error}`
+      );
     }
   }
 
@@ -49,13 +56,20 @@ export function isString(val: unknown): string {
 export function validateAddUserToRoomInput(val: unknown) {
   return validateObject<{ roomCode: string; userId: string }>(val, {
     roomCode: isString,
-    userId: isValidOIDString
+    userId: isValidOIDString,
   });
 }
 
 export function validateCreateRoomInput(val: unknown) {
   return validateObject<{ roomName: string; userId: string }>(val, {
     roomName: isString,
-    userId: isValidOIDString
+    userId: isValidOIDString,
+  });
+}
+
+export function validateDumpInput(val: unknown) {
+  return validateObject<{ roomCode: string; letter: string }>(val, {
+    roomCode: isString,
+    letter: isString,
   });
 }

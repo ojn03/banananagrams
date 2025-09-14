@@ -47,12 +47,12 @@ async function distribute(roomCode: string) {
   const roomSockets = await ioSocket.in(roomCode).fetchSockets();
   const numUsers = roomSockets.length;
   let numLetters: number;
-  
+
   switch (true) {
-    case numUsers < 2:
-      // error
-      break;
-    case numUsers >= 2 && numUsers <= 4:
+    // case numUsers < 2:
+    //   // TODO error
+    //   break;
+    case numUsers >= 1 && numUsers <= 4:
       numLetters = 21;
       break;
     case numUsers >= 5 && numUsers <= 6:

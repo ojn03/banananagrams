@@ -27,6 +27,13 @@ const appRouter = router({
   bank: bankRouter,
   user: userRouter,
   room: roomRouter,
+  // dev: router({ //TODO
+  //   withdraw: publicProcedure.input(isString).query(async (opts) => {
+  //     const { input: roomCode } = opts;
+  //     const letters = await withdraw(roomCode, 21);
+  //     return letters;
+  //   }),
+  // }),
 });
 
 const port = process.env.PORT || "3001";

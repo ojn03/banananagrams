@@ -57,7 +57,6 @@ export default function Tile({
     switch (dto["type"]) {
       case "tile":
         // Handle tile movement from between tiles
-        console.log("swapping grid tiles");
         const { x, y } = dropData;
         moveTile(
           { x, y },

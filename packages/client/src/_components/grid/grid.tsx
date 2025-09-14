@@ -36,7 +36,6 @@ export default function InfiniteGrid({
 
     switch (dto["type"]) {
       case "wallet":
-        console.log("drop tile from wallet");
         const { letter, x, y, mouseX, mouseY } = dropData;
 
         const movementx = e.clientX - mouseX;
@@ -50,7 +49,6 @@ export default function InfiniteGrid({
         addTile(letter, newp);
         break;
       case "tile":
-        console.log("drop tile from grid");
 
         const {
           x: oldX,

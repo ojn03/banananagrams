@@ -30,5 +30,5 @@ export interface SocketEvents {
 export interface Bank {
   _id: Types.ObjectId;
   room_code: string;
-  vault: Record<string, number>;
+  vault: Map<string, number>;
 }

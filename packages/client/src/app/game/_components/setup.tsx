@@ -46,11 +46,11 @@ function WaitingRoom() {
       setRoom({ ...room });
     },
     onError: (err) => {
-      console.log(err.message);
+      console.error(err.message);
     },
   });
 
-  async function onStart() {
+  function onStart() {
     startGame.mutate(room.room_code);
   }
 
@@ -83,7 +83,7 @@ function ChooseName({ setUser }: { setUser: Dispatch<SetStateAction<User>> }) {
       setUser({ ...user });
     },
     onError: (err) => {
-      console.log(err.message);
+      console.error(err.message);
     },
   });
 
@@ -125,16 +125,16 @@ function JoinOrCreateRoom() {
   //TODO add a screen to wait for others to join the room
   const createRoomMutation = trpc.room.createRoom.useMutation({
     onError: (err) => {
-      console.log(err.message);
+      console.error(err.message);
     },
   });
 
   const createBankMutation = trpc.bank.createNewBank.useMutation({
-    onSuccess: (bank) => {
-      // setBank(bank.vault);
-    },
+    // onSuccess: (bank) => { //TODO
+    //   setBank(bank.vault);
+    // },
     onError: (err) => {
-      console.log(err.message);
+      console.error(err.message);
     },
   });
 

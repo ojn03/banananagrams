@@ -43,9 +43,7 @@ export default function TRPCProvider({
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <GameModeContext.Provider
-          value={{  gameMode, setMode: setGameMode }}
-        >
+        <GameModeContext.Provider value={{ gameMode, setGameMode }}>
           {children}
         </GameModeContext.Provider>
       </QueryClientProvider>

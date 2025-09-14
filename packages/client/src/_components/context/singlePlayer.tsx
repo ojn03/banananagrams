@@ -3,7 +3,11 @@
 import { DropData, Position, TileDropData, TileInfo } from "@/types";
 import { useEffect, useState } from "react";
 import letters from "@/defaultLetters";
-import { bankSize, bankWithdrawal, isSingleValidComponent } from "@/utils/gameUtils";
+import {
+  bankSize,
+  bankWithdrawal,
+  isSingleValidComponent,
+} from "@/utils/gameUtils";
 import { GameStateContextType } from "@/types";
 
 //TODO toast notis for errors, peel, dump, etc
@@ -117,7 +121,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     }
   };
 
-  // 
+  // TODO DRY
   const removeTile = (gridPos: Position) => {
     if (!(gridPos.toString() in board)) {
       //TODO Toast

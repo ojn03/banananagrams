@@ -1,35 +1,25 @@
-import { BanananagramsSocket, Position, Room, TileInfo, User } from "@/types";
+import {
+  BanananagramsSocket,
+  DropData,
+  Position,
+  Room,
+  TileDropData,
+  TileInfo,
+  User,
+} from "@/types";
 import { GameStateContextType } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import { trpc } from "@/utils/trpc";
+import { isSingleValidComponent } from "@/utils/gameUtils";
 
+//TODO look into webrtc for p2p connections
 export function CreateMultiplayerContext(): GameStateContextType {
-  const initialWithDrawal = ["a", "b", "c"]; // TODO trpc.bank.withdrawal
-  const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
+  const [wallet, setWallet] = useState<string[]>([]); // MAYBE make wallet a map kinda like bank
   const [board, setBoard] = useState<Record<string, TileInfo>>({});
   const socketRef = useRef<BanananagramsSocket>(null);
   const serverURL =
     process.env.NEXT_PUBLIC_BASE_SERVER || "http://localhost:3001";
-
-  useEffect(() => {
-    socketRef.current = io(serverURL);
-
-    return () => {
-      socketRef.current?.disconnect();
-    };
-  }, [serverURL]);
-
-  const socket = socketRef.current;
-  if (socket !== null) {
-    socket.on("roomUpdated", (room) => {
-      console.log("room updated");
-      setRoom({ ...room });
-    });
-
-    socket.on("addLetters", (letters:string[]) => {
-      setWallet((prev) => prev.concat(letters))
-    })
-  }
 
   const [user, setUser] = useState<User>({ name: "", _id: "" });
   const [room, setRoom] = useState<Room>({
@@ -40,6 +30,85 @@ export function CreateMultiplayerContext(): GameStateContextType {
     hasBegun: false,
     name: "",
   });
+
+  const dumpMutation = trpc.bank.dump.useMutation({
+    onSuccess: (newLetters) => {
+      setWallet(wallet.concat(newLetters));
+    },
+    onError: (err) => {
+      console.error(err.message);
+    },
+  });
+
+  const dump = (dto: DropData) => {
+    const letter = dto.data.letter as string;
+
+    switch (dto.type) {
+      case "tile":
+        const {
+          data: { x, y },
+        } = dto as TileDropData;
+
+        removeTile(new Position(x, y)); // FIXME check if mutate fails, before remove
+        break;
+      case "wallet":
+        if (!wallet.includes(letter)) {
+          return console.error(
+            `letter ${letter} cannot be dumped as it does not exist in wallet`
+          );
+        }
+
+        const letterIndex = wallet.findIndex((l) => l == letter);
+        wallet.splice(letterIndex, 1); // FIXME check if mutate fails, before remove
+        break;
+      default:
+        return console.error("unknown drop type");
+    }
+
+    dumpMutation.mutate({ roomCode: room.room_code, letter });
+  };
+
+  const removeTile = (gridPos: Position) => {
+    if (!(gridPos.toString() in board)) {
+      //TODO Toast
+      return console.error(
+        "attempting to remove inexistent position: ",
+        gridPos.toString()
+      );
+    }
+
+    setBoard((prev) => {
+      delete prev[gridPos.toString()];
+      return prev;
+    });
+  };
+
+  // MAYBE make peel manual. i.e user has to press space to call peel
+  // useEffect(() => {
+  //   if (isSingleValidComponent(board) && wallet.length == 0) {
+  //     trpc.bank.peel;
+  //     // const newletters = bankWithdrawal(bank, 1);
+  //     // setWallet(wallet.concat(newletters));
+  //     // setBank(bank);
+  //   }
+  // }, [bank, board, wallet]);
+
+  useEffect(() => {
+    socketRef.current = io(serverURL);
+    const socket = socketRef.current;
+
+    socket.on("roomUpdated", (newRoom) => {
+      setRoom({ ...newRoom });
+    });
+
+    socket.on("addLetters", (letters) => {
+      setWallet((prev) => prev.concat(letters));
+    });
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
+  }, [serverURL]);
 
   const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x},${oldPos.y}`;
@@ -92,6 +161,7 @@ export function CreateMultiplayerContext(): GameStateContextType {
   };
 
   return {
+    dump,
     spacing: 50,
     board,
     moveTile,
@@ -105,5 +175,5 @@ export function CreateMultiplayerContext(): GameStateContextType {
       socket: socketRef.current!,
       setRoom,
     },
-  } as any; //eslint-disable-line
+  };
 }

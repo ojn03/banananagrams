@@ -70,11 +70,10 @@ const roomModel = mongoose.model<Room>("room", roomSchema);
 
 const bankSchema = new mongoose.Schema<Bank>(
   {
-    room: {
+    room_code: {
       type: String,
       required: true,
       unique: true,
-      ref: "room",
     },
     vault: {
       type: Map,

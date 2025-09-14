@@ -25,6 +25,10 @@ export function CreateMultiplayerContext(): GameStateContextType {
       console.log("room updated");
       setRoom({ ...room });
     });
+
+    socket.on("addLetters", (letters:string[]) => {
+      setWallet((prev) => prev.concat(letters))
+    })
   }
 
   const [user, setUser] = useState<User>({ name: "", _id: "" });

@@ -136,7 +136,6 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
   return {
     board,
     spacing: 50,
-    bank,
     wallet,
     addTile,
     moveTile,

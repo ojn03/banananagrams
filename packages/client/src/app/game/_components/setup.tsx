@@ -120,7 +120,7 @@ function JoinOrCreateRoom() {
   const [inputJoinCode, setInputJoinCode] = useState<string>("");
   const context = useGameStateContext();
 
-  const { user, setBank, socket } = context.multiplayerState!;
+  const { user, socket } = context.multiplayerState!;
 
   //TODO add a screen to wait for others to join the room
   const createRoomMutation = trpc.room.createRoom.useMutation({
@@ -131,7 +131,7 @@ function JoinOrCreateRoom() {
 
   const createBankMutation = trpc.bank.createNewBank.useMutation({
     onSuccess: (bank) => {
-      setBank(bank.vault);
+      // setBank(bank.vault);
     },
     onError: (err) => {
       console.log(err.message);

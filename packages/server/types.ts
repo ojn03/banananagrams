@@ -24,10 +24,11 @@ export interface SocketEvents {
   peel: (payload: {}) => void;
   joinRoom: (payload: { user: string; roomCode: string }) => void;
   roomUpdated: (room: Room) => void;
+  addLetters: (letters: string[]) => void;
 }
 
 export interface Bank {
   _id: Types.ObjectId;
-  room: string;
+  room_code: string;
   vault: Record<string, number>;
 }

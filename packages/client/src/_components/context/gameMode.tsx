@@ -3,7 +3,7 @@ import { createContext } from "react";
 
 interface gameModeContextType {
   gameMode : GameMode 
-  setMode: (gameMode : GameMode) => void
+  setGameMode: (gameMode : GameMode) => void
 }
 
 export const GameModeContext = createContext<gameModeContextType | null>(

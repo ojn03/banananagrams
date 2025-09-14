@@ -1,19 +1,11 @@
 "use client";
 import useGameModeContext from "@/hooks/gameMode";
-import { GameMode } from "@/types";
 import { useRouter } from "next/navigation";
 //TODO create a color scheme
 
 export default function Page() {
-  const { setMode } = useGameModeContext();
-  return <SelectMode setGameMode={setMode} />;
-}
+  const { setGameMode } = useGameModeContext();
 
-function SelectMode({
-  setGameMode,
-}: {
-  setGameMode: (mode: GameMode) => void;
-}) {
   const router = useRouter();
 
   return (

@@ -82,6 +82,7 @@ export interface SocketEvents {
   peel: (payload: undefined) => void;
   joinRoom: (payload: { user: string; roomCode: string }) => void; // MAYBE do this through http route instead
   roomUpdated: (room: Room) => void;
+  addLetters: (letters: string[]) => void;
 }
 
 //TODO toast notis for errors, peel, dump, etc
@@ -93,14 +94,12 @@ interface MultiplayerStateType {
   setRoom: (room: Room) => void;
   user: User;
   setUser: Dispatch<SetStateAction<User>>;
-  setBank: (bank: Record<string, number>) => void;
   socket: BanananagramsSocket;
 }
 
 export interface GameStateContextType {
   board: Record<string, TileInfo>;
   wallet: string[];
-  bank: Record<string, number>;
   spacing: number;
   moveTile: (oldPos: Position, newPos: Position) => void;
   addTile: (letter: string, pos: Position) => void;

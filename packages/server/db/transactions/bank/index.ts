@@ -13,14 +13,16 @@ function bankSize(bank: Bank) {
 }
 
 export async function createNewBank(roomCode: string) {
-  const room = await getRoomByRoomCode(roomCode);
-
+  await getRoomByRoomCode(roomCode);
   await bankModel.create({
-    room: room._id,
+    room_code: roomCode,
     vault: defaultBank,
   });
 
-  const newBank = await bankModel.findOne({ room: room._id }).lean().orFail();
+  const newBank = await bankModel
+    .findOne({ room_code: roomCode })
+    .lean()
+    .orFail();
 
   return newBank;
 }
@@ -39,5 +41,39 @@ export async function peel(roomCode: string) {
     // do sum
   }
 
-  // bank.vault// check if not enough letters // randomly withdraw letters and add it to each user
+  // Not enough letters to peel for all players
+  return false;
+}
+
+export async function withdraw(
+  roomCode: string,
+  numLetters: number
+): Promise<string[]> {
+  const bank = await bankModel.findOne({ room_code: roomCode }).orFail(() => {
+    throw new Error(`Bank with room code ${roomCode} not found`);
+  });
+  const availableLetters: string[] = [];
+  let total = 0;
+  Object.entries(bank.vault).forEach(([k, v]) => {
+    for (let i = v; i > 0; i -= 1) availableLetters.push(k);
+
+    total += v;
+  });
+
+  if (total < numLetters) {
+    throw new Error("not enough letters in bank");
+  }
+  
+  const picked: string[] = [];
+  for (let i = 0; i < numLetters; i++) {
+    const idx = Math.floor(Math.random() * availableLetters.length);
+    const pick = availableLetters[idx];
+    picked.push(pick);
+    bank.vault[pick] -= 1;
+    // Swap with last and pop for O(1) removal
+    availableLetters[idx] = availableLetters[availableLetters.length - 1];
+    availableLetters.pop();
+  }
+  await bank.save();
+  return picked;
 }

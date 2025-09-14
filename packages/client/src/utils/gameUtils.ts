@@ -78,7 +78,10 @@ export function validateBoard(
   }
 }
 
-export function isValidTile(state: Record<string, TileInfo>, pos: string ): boolean {
+export function isValidTile(
+  state: Record<string, TileInfo>,
+  pos: string
+): boolean {
   const tile = state[pos];
 
   // if both directions are invalid, return false
@@ -117,8 +120,8 @@ export function isSingleValidComponent(
 
   const keySet: Set<string> = new Set();
   for (const pos in state) {
-    if (! isValidTile(state, pos)){
-      return false
+    if (!isValidTile(state, pos)) {
+      return false;
     }
 
     keySet.add(pos);
@@ -172,18 +175,17 @@ export function bankWithdrawal(
 
   if (total < amount) {
     throw Error("not enough letters in bank");
-  } else {
-    const picked: string[] = [];
-    const letters = [...availableLetters];
-    for (let i = 0; i < amount; i++) {
-      const idx = Math.floor(Math.random() * letters.length);
-      const pick = letters[idx];
-      picked.push(pick);
-      bank[pick] -= 1;
-      letters.splice(idx, 1);
-    }
-    return picked;
   }
+  const picked: string[] = [];
+  for (let i = 0; i < amount; i++) {
+    const idx = Math.floor(Math.random() * availableLetters.length);
+    const pick = availableLetters[idx];
+    picked.push(pick);
+    bank[pick] -= 1;
+    availableLetters[idx] = availableLetters[availableLetters.length - 1];
+    availableLetters.pop();
+  }
+  return picked;
 }
 
 export function bankSize(bank: Record<string, number>) {

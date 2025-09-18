@@ -7,6 +7,7 @@ import { bankRouter, userRouter, roomRouter } from "./routers";
 import { BanananagramsSocket } from "./types";
 import { Server } from "socket.io";
 import { addUserToRoom } from "./db/transactions/room";
+import { peel } from "./db/transactions/bank";
 
 dotenv.config();
 
@@ -27,13 +28,6 @@ const appRouter = router({
   bank: bankRouter,
   user: userRouter,
   room: roomRouter,
-  // dev: router({ //TODO
-  //   withdraw: publicProcedure.input(isString).query(async (opts) => {
-  //     const { input: roomCode } = opts;
-  //     const letters = await withdraw(roomCode, 21);
-  //     return letters;
-  //   }),
-  // }),
 });
 
 const port = process.env.PORT || "3001";
@@ -59,9 +53,12 @@ ioSocket.on("connection", (socket) => {
     ioSocket.to(roomCode).emit("roomUpdated", room);
   });
 
+  socket.on("peel", async (payload) => {
+    await peel(payload.roomCode, payload.user);
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
-    // Perform cleanup or update user counts here
   });
 });
 

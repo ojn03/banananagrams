@@ -2,6 +2,13 @@ import { Bank } from "@/types";
 import { bankModel } from "@/db/schemas";
 import { getRoomByRoomCode } from "@/db/transactions/room";
 import defaultBank from "./defaultLetterDistribution";
+import { ioSocket } from "@/index";
+import { getUserById } from "../user";
+
+export async function sizeByRoomCode(roomCode: string) {
+  const bank = await getBankByRoomCode(roomCode);
+  return bankSize(bank);
+}
 
 function bankSize(bank: Bank) {
   let bankSize = 0;
@@ -27,27 +34,30 @@ export async function createNewBank(roomCode: string) {
   return newBank;
 }
 
-export async function peel(roomCode: string) {
-  const room = await getRoomByRoomCode(roomCode); //MAYBE have bank model store the room code instead
+export async function peel(roomCode: string, userID: string) {
+  const sockets = await ioSocket.to(roomCode).fetchSockets();
 
-  const bank = await findBankByRoomCode(roomCode);
-
-  const size = bankSize(bank);
-  const numPlayers = room.users.length;
-
-  if (numPlayers > size) {
-    // do sum
+  const bank = await getBankByRoomCode(roomCode);
+  if (sockets.length > bankSize(bank)) {
+    // this user won
+    const user =  await getUserById(userID)
+    ioSocket.emit("userWon", user)
+    return 
   }
+  const letters = await withdraw(roomCode, sockets.length)
 
-  // Not enough letters to peel for all players
-  return false;
+  sockets.forEach((sock, i) => {
+    sock.emit("addLetters", [letters[i]])
+  })
+
+  return ;
 }
 
 export async function dump(
   roomCode: string,
   letter: string
 ): Promise<string[]> {
-  const bank = await findBankByRoomCode(roomCode);
+  const bank = await getBankByRoomCode(roomCode);
 
   if (bankSize(bank) < 3) {
     throw new Error("not enough letters left in bank");
@@ -55,11 +65,12 @@ export async function dump(
 
   const letters = withdraw(bank.room_code, 3, bank);
   bank.vault.set(letter, (bank.vault.get(letter) || 0) + 1);
+  bank.save();
 
   return letters;
 }
 
-async function findBankByRoomCode(roomCode: string) {
+async function getBankByRoomCode(roomCode: string) {
   const bank = await bankModel.findOne({ room_code: roomCode }).orFail(() => {
     throw new Error(`Bank with room code ${roomCode} not found`);
   });
@@ -73,7 +84,7 @@ export async function withdraw(
 ): Promise<string[]> {
   const bank =
     existingBank == undefined
-      ? await findBankByRoomCode(roomCode)
+      ? await getBankByRoomCode(roomCode)
       : existingBank;
   const availableLetters: string[] = [];
   let total = 0;

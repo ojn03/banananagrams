@@ -83,18 +83,12 @@ export function CreateMultiplayerContext(): GameStateContextType {
     });
   };
 
-  // MAYBE make peel manual. i.e user has to press space to call peel
-  // useEffect(() => {
-  //   if (isSingleValidComponent(board) && wallet.length == 0) {
-  //     trpc.bank.peel;
-  //     // const newletters = bankWithdrawal(bank, 1);
-  //     // setWallet(wallet.concat(newletters));
-  //     // setBank(bank);
-  //   }
-  // }, [bank, board, wallet]);
+  const canPeel = () => isSingleValidComponent(board) && wallet.length == 0;
 
   useEffect(() => {
-    socketRef.current = io(serverURL);
+    if (!socketRef.current) {
+      socketRef.current = io(serverURL);
+    }
     const socket = socketRef.current;
 
     socket.on("roomUpdated", (newRoom) => {
@@ -105,10 +99,26 @@ export function CreateMultiplayerContext(): GameStateContextType {
       setWallet((prev) => prev.concat(letters));
     });
 
+    socket.on("userWon", (winner) => {
+      const isThisUser = (user._id = winner._id);
+
+      // TODO toast
+      console.log(
+        isThisUser
+          ? "congrats, you won!"
+          : `you're a loser. ${winner.name} won. better luck next time`
+      );
+    });
+
+    // MAYBE make peel manual. i.e user has to press space to call peel
+    if (canPeel()) {
+      socket.emit("peel", { user: user._id, roomCode: room.room_code });
+    }
+
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [serverURL]);
+  }, [canPeel, serverURL]);
 
   const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x},${oldPos.y}`;

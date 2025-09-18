@@ -79,10 +79,11 @@ export type BanananagramsSocket = Socket<SocketEvents>;
  */
 export interface SocketEvents {
   //TODO create socket type
-  peel: (payload: undefined) => void;
+  peel: (payload: { user: string; roomCode: string }) => void;
   joinRoom: (payload: { user: string; roomCode: string }) => void; // MAYBE do this through http route instead
   roomUpdated: (room: Room) => void;
   addLetters: (letters: string[]) => void;
+  userWon: (user: User) => void;
 }
 
 //TODO toast notis for errors, peel, dump, etc

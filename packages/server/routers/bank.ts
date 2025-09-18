@@ -8,13 +8,11 @@ const bankRouter = router({
     const bank = await createNewBank(roomCode);
     return bank;
   }),
-
-  peel: publicProcedure.input(isString).mutation(async () => {}),
   dump: publicProcedure.input(validateDumpInput).mutation(async (opts) => {
     const {
       input: { roomCode, letter },
     } = opts;
-    await dump(roomCode, letter);
+    return await dump(roomCode, letter);
   }),
 });
 

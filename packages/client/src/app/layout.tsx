@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-300`}
       >
-        <div className="h-screen w-screen">
+        <div className="h-screen w-screen overflow-clip">
           <TRPCProvider>{children}</TRPCProvider>
         </div>
       </body>

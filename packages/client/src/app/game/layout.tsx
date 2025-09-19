@@ -1,7 +1,8 @@
 "use client";
 import useGameModeContext from "@/hooks/gameMode";
 import { redirect } from "next/navigation";
-import TileProvider from "@/_components/context";
+import GameStateProvider from "@/_components/providers/gameState";
+import TRPCProvider from "@/_components/providers/trpc";
 
 export default function Layout({
   children,
@@ -13,5 +14,9 @@ export default function Layout({
     redirect("/");
   }
 
-  return <TileProvider>{children}</TileProvider>;
+  return (
+    <TRPCProvider>
+      <GameStateProvider>{children}</GameStateProvider>;
+    </TRPCProvider>
+  );
 }

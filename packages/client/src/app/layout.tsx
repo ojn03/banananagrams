@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import TRPCProvider from "@/_components/trpcProvider";
+import GameModeProvider from "@/_components/providers/gameMode";
 //TODO move components to folder near where they are used
 
 const geistSans = Geist({
@@ -30,7 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-300`}
       >
         <div className="h-screen w-screen overflow-clip">
-          <TRPCProvider>{children}</TRPCProvider>
+          <GameModeProvider>{children}</GameModeProvider>
         </div>
       </body>
     </html>

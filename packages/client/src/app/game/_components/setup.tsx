@@ -1,5 +1,6 @@
 "use client";
 import InfiniteGrid from "@/_components/grid/grid";
+import TRPCProvider from "@/_components/providers/trpc";
 import Wallet from "@/_components/wallet/wallet";
 import useGameModeContext from "@/hooks/gameMode";
 import useGameStateContext from "@/hooks/gameState";
@@ -11,11 +12,15 @@ import { Dispatch, SetStateAction, useState } from "react";
 //TODO move setup to initializatino of gameSettings/mode
 export default function Setup({ dictionary }: { dictionary: Set<string> }) {
   const { gameMode } = useGameModeContext();
-  const { multiplayerState } = useGameStateContext();
 
   if (gameMode === "single") {
     return <Game dictionary={dictionary} />;
   }
+  return <MultiplayerSetup dictionary={dictionary} />;
+}
+
+function MultiplayerSetup({ dictionary }: { dictionary: Set<string> }) {
+  const { multiplayerState } = useGameStateContext();
 
   if (multiplayerState === undefined) {
     throw new Error("multiplayer state not defined");
@@ -34,7 +39,9 @@ export default function Setup({ dictionary }: { dictionary: Set<string> }) {
   ) : !hasBegun ? (
     <WaitingRoom />
   ) : (
-    <Game dictionary={dictionary} />
+    <Game dictionary={dictionary} /> 
+    // TODO add loading state while trpc loads
+    //TODO move TRPC provider to here once we can move trpc mutations out of gamestate
   );
 }
 

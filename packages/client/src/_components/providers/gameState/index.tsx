@@ -2,8 +2,8 @@
 
 import type { GameStateContextType } from "@/types";
 import { createContext, ReactNode } from "react";
-import { CreateSinglePlayerContext } from "./singlePlayer";
-import { CreateMultiplayerContext } from "./multiplayer";
+import { CreateSinglePlayerContext } from "./singlePlayerContext";
+import { CreateMultiplayerContext } from "./multiplayerContext";
 import useGameModeContext from "@/hooks/gameMode";
 import { redirect } from "next/navigation";
 

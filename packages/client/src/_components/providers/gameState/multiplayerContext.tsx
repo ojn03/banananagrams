@@ -1,3 +1,4 @@
+"use client"
 import {
   BanananagramsSocket,
   DropData,
@@ -31,6 +32,7 @@ export function CreateMultiplayerContext(): GameStateContextType {
     name: "",
   });
 
+  //MAYBE move dumpmutation outside of gamestate context
   const dumpMutation = trpc.bank.dump.useMutation({
     onSuccess: (newLetters) => {
       setWallet(wallet.concat(newLetters));

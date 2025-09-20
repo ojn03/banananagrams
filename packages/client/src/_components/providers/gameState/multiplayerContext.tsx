@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   BanananagramsSocket,
   DropData,
@@ -85,12 +85,8 @@ export function CreateMultiplayerContext(): GameStateContextType {
     });
   };
 
-  const canPeel = () => isSingleValidComponent(board) && wallet.length == 0;
-
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = io(serverURL);
-    }
+    socketRef.current = io(serverURL);
     const socket = socketRef.current;
 
     socket.on("roomUpdated", (newRoom) => {
@@ -113,14 +109,22 @@ export function CreateMultiplayerContext(): GameStateContextType {
     });
 
     // MAYBE make peel manual. i.e user has to press space to call peel
-    if (canPeel()) {
-      socket.emit("peel", { user: user._id, roomCode: room.room_code });
-    }
 
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [canPeel, serverURL]);
+  }, [serverURL]);
+
+  useEffect(() => {
+    const canpeel = isSingleValidComponent(board) && wallet.length == 0;
+    if (canpeel) {
+      //TODO ensure socket is available
+      socketRef?.current?.emit("peel", {
+        user: user._id,
+        roomCode: room.room_code,
+      });
+    }
+  });
 
   const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x},${oldPos.y}`;

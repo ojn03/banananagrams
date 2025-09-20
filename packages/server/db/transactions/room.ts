@@ -53,7 +53,7 @@ async function distribute(roomCode: string) {
     //   // TODO error
     //   break;
     case numUsers >= 1 && numUsers <= 4:
-      numLetters = 21;
+      numLetters = 3;
       break;
     case numUsers >= 5 && numUsers <= 6:
       numLetters = 15;

@@ -11,6 +11,7 @@ import {
   validateCreateRoomInput,
 } from "@/validators";
 import { ioSocket } from "@/index";
+import { TRPCError } from "@trpc/server";
 
 const roomRouter = router({
   addUserToRoom: publicProcedure
@@ -26,8 +27,15 @@ const roomRouter = router({
 
   getRoomByCode: publicProcedure.input(isString).query(async (opts) => {
     const { input: roomCode } = opts;
-    const room = await getRoomByRoomCode(roomCode);
-    return room;
+    try {
+      const room = await getRoomByRoomCode(roomCode);
+      return room;
+    } catch (err) {
+      if (err instanceof TRPCError) {
+        throw err;
+      }
+      throw new TRPCError({ code: "BAD_REQUEST" });
+    }
   }),
 
   createRoom: publicProcedure

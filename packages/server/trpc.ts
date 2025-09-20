@@ -1,4 +1,4 @@
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 // import superjson from "superjson";
 
 // MAYBE create a context if useful
@@ -12,7 +12,7 @@ export const createContext = (): Context => ({});
  * Should be done only once per backend!
  */
 const t = initTRPC.context<Context>().create({
-  // transformer: superjson 
+  // transformer: superjson
 });
 
 /**
@@ -20,4 +20,14 @@ const t = initTRPC.context<Context>().create({
  * that can be used throughout the router
  */
 export const router = t.router;
-export const publicProcedure = t.procedure;
+export const publicProcedure = t.procedure
+// .use(async ({ ctx, next }) => {
+//   const resp = await next({ ctx });
+
+//   if (!resp.ok) {
+//     console.log("middleware intercepted error: ");
+//     throw new TRPCError(resp.error);
+//   }
+
+//   return resp;
+// });

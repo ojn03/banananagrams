@@ -84,6 +84,7 @@ export interface SocketEvents {
   roomUpdated: (room: Room) => void;
   addLetters: (letters: string[]) => void;
   userWon: (user: User) => void;
+  error: (error: Error) => void;
 }
 
 //TODO toast notis for errors, peel, dump, etc

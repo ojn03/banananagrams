@@ -96,9 +96,9 @@ export default function Tile({
       }}
       style={{
         position: "absolute",
-        top: screenPos.y + size * 0.025,
-        left: screenPos.x + size * 0.06,
-        height: size * 0.95,
+        top: screenPos.y + size * 0.05,
+        left: screenPos.x + size * 0.05,
+        height: size * 0.9,
         width: size * 0.9,
       }}
       className={`rounded-lg flex justify-center items-center cursor-pointer select-none hover:scale-105 ${color}`}

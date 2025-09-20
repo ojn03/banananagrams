@@ -8,6 +8,7 @@ import { BanananagramsSocket } from "./types";
 import { Server } from "socket.io";
 import { addUserToRoom } from "./db/transactions/room";
 import { peel } from "./db/transactions/bank";
+import { TRPCError } from "@trpc/server";
 
 dotenv.config();
 
@@ -24,6 +25,9 @@ mongoose.connect(db_url);
 console.log("successfully connected to mongodb");
 
 const appRouter = router({
+  error: publicProcedure.query(() => {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }),
   hello: publicProcedure.query(() => "hello from server"),
   bank: bankRouter,
   user: userRouter,
@@ -49,12 +53,23 @@ ioSocket.on("connection", (socket) => {
   console.log("a user has connected with socket id", socket.id);
   socket.on("joinRoom", async ({ roomCode, user }) => {
     socket.join(roomCode);
-    const room = await addUserToRoom(user, roomCode);
-    ioSocket.to(roomCode).emit("roomUpdated", room);
+    try {
+      const room = await addUserToRoom(user, roomCode);
+      ioSocket.to(roomCode).emit("roomUpdated", room);
+    } catch (error) {
+      socket.emit(
+        "error",
+        new Error("error adding user to room. double check room number")
+      );
+    }
   });
 
   socket.on("peel", async (payload) => {
-    await peel(payload.roomCode, payload.user);
+    try {
+      await peel(payload.roomCode, payload.user);
+    } catch (error) {
+      socket.emit("error", new Error("error peeling"));
+    }
   });
 
   socket.on("disconnect", () => {

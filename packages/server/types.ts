@@ -26,6 +26,7 @@ export interface SocketEvents {
   roomUpdated: (room: Room) => void;
   addLetters: (letters: string[]) => void;
   userWon: (user: User) => void;
+  error: (error : Error) => void
 }
 
 export interface Bank {

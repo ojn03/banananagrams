@@ -4,6 +4,7 @@ import { getRoomByRoomCode } from "@/db/transactions/room";
 import defaultBank from "./defaultLetterDistribution";
 import { ioSocket } from "@/index";
 import { getUserById } from "../user";
+import { TRPCError } from "@trpc/server";
 
 export async function sizeByRoomCode(roomCode: string) {
   const bank = await getBankByRoomCode(roomCode);
@@ -26,10 +27,7 @@ export async function createNewBank(roomCode: string) {
     vault: defaultBank,
   });
 
-  const newBank = await bankModel
-    .findOne({ room_code: roomCode })
-    .lean()
-    .orFail();
+  const newBank = await getBankByRoomCode(roomCode);
 
   return newBank;
 }
@@ -40,17 +38,17 @@ export async function peel(roomCode: string, userID: string) {
   const bank = await getBankByRoomCode(roomCode);
   if (sockets.length > bankSize(bank)) {
     // this user won
-    const user =  await getUserById(userID)
-    ioSocket.emit("userWon", user)
-    return 
+    const user = await getUserById(userID);
+    ioSocket.emit("userWon", user);
+    return;
   }
-  const letters = await withdraw(roomCode, sockets.length)
+  const letters = await withdraw(roomCode, sockets.length);
 
   sockets.forEach((sock, i) => {
-    sock.emit("addLetters", [letters[i]])
-  })
+    sock.emit("addLetters", [letters[i]]);
+  });
 
-  return ;
+  return;
 }
 
 export async function dump(
@@ -60,7 +58,10 @@ export async function dump(
   const bank = await getBankByRoomCode(roomCode);
 
   if (bankSize(bank) < 3) {
-    throw new Error("not enough letters left in bank");
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Not enough letters left in bank",
+    });
   }
 
   const letters = withdraw(bank.room_code, 3, bank);
@@ -72,7 +73,10 @@ export async function dump(
 
 async function getBankByRoomCode(roomCode: string) {
   const bank = await bankModel.findOne({ room_code: roomCode }).orFail(() => {
-    throw new Error(`Bank with room code ${roomCode} not found`);
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: `Bank with room code ${roomCode} not found`,
+    });
   });
   return bank;
 }
@@ -96,7 +100,10 @@ export async function withdraw(
   });
 
   if (total < numLetters) {
-    throw new Error("not enough letters in bank");
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Not enough letters in bank",
+    });
   }
 
   const picked: string[] = [];

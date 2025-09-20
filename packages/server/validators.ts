@@ -1,11 +1,15 @@
 import { isValidObjectId } from "mongoose";
+import { TRPCError } from "@trpc/server";
 
 function validateObject<T extends Record<string, unknown>>(
   obj: unknown,
   validators: { [K in keyof T]: (val: unknown) => T[K] }
 ): T {
   if (typeof obj !== "object" || obj === null) {
-    throw new Error("Expected object, got " + typeof obj);
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Expected object, got " + typeof obj
+    });
   }
 
   const allowedFields = Object.keys(validators);
@@ -16,11 +20,12 @@ function validateObject<T extends Record<string, unknown>>(
     (key) => !allowedFields.includes(key)
   );
   if (extraFields.length > 0) {
-    throw new Error(
-      `Unexpected fields: ${extraFields.join(
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Unexpected fields: ${extraFields.join(
         ", "
       )}. Allowed: ${allowedFields.join(", ")}`
-    );
+    });
   }
 
   // Check for missing required fields and validate
@@ -29,9 +34,10 @@ function validateObject<T extends Record<string, unknown>>(
     try {
       result[key as keyof T] = validator(input[key]);
     } catch (error) {
-      throw new Error(
-        `Field '${key}': ${error instanceof Error ? error.message : error}`
-      );
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Field '${key}': ${error instanceof Error ? error.message : String(error)}`
+      });
     }
   }
 
@@ -43,14 +49,20 @@ export function isValidOIDString(val: unknown): string {
     return val;
   }
 
-  throw new Error("invalid object id string: " + val);
+  throw new TRPCError({
+    code: "BAD_REQUEST",
+    message: "invalid object id string: " + val
+  });
 }
 
 export function isString(val: unknown): string {
   if (typeof val === "string" && val.length >= 1) {
     return val;
   }
-  throw new Error("invalid or empty string: " + val);
+  throw new TRPCError({
+    code: "BAD_REQUEST",
+    message: "invalid or empty string: " + val
+  });
 }
 
 export function validateAddUserToRoomInput(val: unknown) {

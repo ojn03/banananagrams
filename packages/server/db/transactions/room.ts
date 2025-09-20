@@ -2,6 +2,7 @@ import { roomModel } from "@/db/schemas";
 import { getUserById } from "@/db/transactions/user";
 import { ioSocket } from "@/index";
 import { withdraw } from "./bank";
+import { TRPCError } from "@trpc/server";
 
 //MAYBE implement atomic transactions
 
@@ -35,7 +36,10 @@ export async function startGame(roomCode: string) {
     .populate("users")
     .lean()
     .orFail(() => {
-      throw new Error(`Room with code ${roomCode} not found`);
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Room with code ${roomCode} not found`,
+      });
     });
 
   await distribute(roomCode);
@@ -78,7 +82,10 @@ export async function getRoomByRoomCode(roomCode: string) {
     .populate("users")
     .lean()
     .orFail(() => {
-      throw new Error(`Room with code ${roomCode} not found`);
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: `Room with code ${roomCode} not found`,
+      });
     });
 
   return room;
@@ -97,7 +104,10 @@ export async function addUserToRoom(userId: string, roomCode: string) {
     .populate("users")
     .lean()
     .orFail(() => {
-      throw new Error(`Room with code ${roomCode} not found`);
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: `Room with code ${roomCode} not found`,
+      });
     });
   return room;
 }

@@ -93,6 +93,11 @@ export function CreateMultiplayerContext(): GameStateContextType {
       setRoom({ ...newRoom });
     });
 
+    //TODO better socket errors
+    socket.on("error", (error) => {
+      console.error("oopsies: ", error);
+    });
+
     socket.on("addLetters", (letters) => {
       setWallet((prev) => prev.concat(letters));
     });

@@ -7,7 +7,6 @@ import { User } from "@/types";
 import { trpc } from "@/utils/trpc";
 import { Dispatch, SetStateAction, useState } from "react";
 import Image from "next/image";
-import loading from "@/_components/loading.webp";
 
 //TODO create reusable components and split this file up
 //TODO move setup to initializatino of gameSettings/mode
@@ -54,9 +53,10 @@ function Loading() {
   return (
     <div className="w-full h-full bg-white flex justify-center items-center">
       <div className="flex flex-col justify-center items-center ">
-        <Image src={loading} alt="loading" />
+        <Image src="/loading.webp" alt="loading" />
         <h1 className="text-neutral-600 text-lg font-bold text-center">
-          Server might take 30-60 seconds to spin up<br />
+          Server might take 30-60 seconds to spin up
+          <br />
           (Im <span className="line-through">broke</span> on the free plan)
         </h1>
       </div>

@@ -108,7 +108,7 @@ export function CreateMultiplayerContext(): GameStateContextType {
       console.log(
         isThisUser
           ? "congrats, you won!"
-          : `you're a loser. ${winner.name} won. better luck next time`
+          : `${winner.name} won. you're a loser. do better`
       );
     });
 

@@ -1,5 +1,5 @@
 import { type AppRouter } from "@banananagrams/server";
-//TODO make it so we dont have to import the whole server
+//TODO make it so we dont add the whole server as a dependency
 import { createTRPCReact } from "@trpc/react-query";
 
 // Pass AppRouter as generic here. 👇 This lets the `trpc` object know

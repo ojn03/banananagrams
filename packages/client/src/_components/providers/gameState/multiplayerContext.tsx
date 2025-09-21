@@ -14,7 +14,7 @@ import { io } from "socket.io-client";
 import { trpc } from "@/utils/trpc";
 import { isSingleValidComponent } from "@/utils/gameUtils";
 
-//TODO look into webrtc for p2p connections
+//MAYBE look into webrtc for p2p connections
 export function CreateMultiplayerContext(): GameStateContextType {
   const [wallet, setWallet] = useState<string[]>([]); // MAYBE make wallet a map kinda like bank
   const [board, setBoard] = useState<Record<string, TileInfo>>({});
@@ -32,7 +32,6 @@ export function CreateMultiplayerContext(): GameStateContextType {
     name: "",
   });
 
-  //MAYBE move dumpmutation outside of gamestate context
   const dumpMutation = trpc.bank.dump.useMutation({
     onSuccess: (newLetters) => {
       setWallet(wallet.concat(newLetters));

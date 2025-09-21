@@ -1,12 +1,13 @@
 "use client";
 import InfiniteGrid from "@/_components/grid/grid";
-import TRPCProvider from "@/_components/providers/trpc";
 import Wallet from "@/_components/wallet/wallet";
 import useGameModeContext from "@/hooks/gameMode";
 import useGameStateContext from "@/hooks/gameState";
 import { User } from "@/types";
 import { trpc } from "@/utils/trpc";
 import { Dispatch, SetStateAction, useState } from "react";
+import Image from "next/image";
+import loading from "@/_components/loading.webp";
 
 //TODO create reusable components and split this file up
 //TODO move setup to initializatino of gameSettings/mode
@@ -26,22 +27,40 @@ function MultiplayerSetup({ dictionary }: { dictionary: Set<string> }) {
     throw new Error("multiplayer state not defined");
   }
 
+  const { isLoading } = trpc.hello.useQuery();
+
   const {
     user,
     room: { room_code, hasBegun },
     setUser,
   } = multiplayerState;
 
-  return !(user._id && user.name) ? (
+  return isLoading ? (
+    <Loading />
+  ) : !(user._id && user.name) ? (
     <ChooseName setUser={setUser} />
   ) : room_code === "" ? (
     <JoinOrCreateRoom />
   ) : !hasBegun ? (
     <WaitingRoom />
   ) : (
-    <Game dictionary={dictionary} /> 
-    // TODO add loading state while trpc loads
-    //TODO move TRPC provider to here once we can move trpc mutations out of gamestate
+    <Game dictionary={dictionary} />
+  );
+
+  //TODO move TRPC provider to here once we can move trpc mutations out of gamestate
+}
+
+function Loading() {
+  return (
+    <div className="w-full h-full bg-white flex justify-center items-center">
+      <div className="flex flex-col justify-center items-center ">
+        <Image src={loading} alt="loading" />
+        <h1 className="text-neutral-600 text-lg font-bold text-center">
+          Server might take 30-60 seconds to spin up<br />
+          (Im <span className="line-through">broke</span> on the free plan)
+        </h1>
+      </div>
+    </div>
   );
 }
 
@@ -84,7 +103,7 @@ function WaitingRoom() {
 }
 
 function ChooseName({ setUser }: { setUser: Dispatch<SetStateAction<User>> }) {
-  const [userNameInput, setUserNameInput] = useState("anonymous");
+  const [userNameInput, setUserNameInput] = useState("gerald");
   const newUserMutation = trpc.user.createUser.useMutation({
     onSuccess: (user) => {
       setUser({ ...user });
@@ -129,7 +148,6 @@ function JoinOrCreateRoom() {
 
   const { user, socket } = context.multiplayerState!;
 
-  //TODO add a screen to wait for others to join the room
   const createRoomMutation = trpc.room.createRoom.useMutation({
     onError: (err) => {
       console.error(err.message);
@@ -137,9 +155,6 @@ function JoinOrCreateRoom() {
   });
 
   const createBankMutation = trpc.bank.createNewBank.useMutation({
-    // onSuccess: (bank) => { //TODO
-    //   setBank(bank.vault);
-    // },
     onError: (err) => {
       console.error(err.message);
     },

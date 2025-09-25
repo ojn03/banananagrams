@@ -49,8 +49,12 @@ export function CreateMultiplayerContext(): GameStateContextType {
         const {
           data: { x, y },
         } = dto as TileDropData;
-
-        removeTile(new Position(x, y)); // FIXME check if mutate fails, before remove
+        dumpMutation
+          .mutateAsync({ roomCode: room.room_code, letter })
+          .then(() => {
+            removeTile(new Position(x, y));
+          })
+          .catch((e) => console.error(e));
         break;
       case "wallet":
         if (!wallet.includes(letter)) {
@@ -58,15 +62,18 @@ export function CreateMultiplayerContext(): GameStateContextType {
             `letter ${letter} cannot be dumped as it does not exist in wallet`
           );
         }
+        dumpMutation
+          .mutateAsync({ roomCode: room.room_code, letter })
+          .then(() => {
+            const letterIndex = wallet.findIndex((l) => l == letter);
+            wallet.splice(letterIndex, 1);
+          })
+          .catch((e) => console.error(e));
 
-        const letterIndex = wallet.findIndex((l) => l == letter);
-        wallet.splice(letterIndex, 1); // FIXME check if mutate fails, before remove
         break;
       default:
         return console.error("unknown drop type");
     }
-
-    dumpMutation.mutate({ roomCode: room.room_code, letter });
   };
 
   const removeTile = (gridPos: Position) => {

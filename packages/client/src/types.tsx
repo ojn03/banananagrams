@@ -91,7 +91,7 @@ export interface SocketEvents {
 //TODO add multiselect
 //MAYBE move to hooks file
 //MAYBE move gamestatecontexttype to types file
-interface MultiplayerStateType {
+export interface MultiplayerStateType {
   room: Room;
   setRoom: (room: Room) => void;
   user: User;

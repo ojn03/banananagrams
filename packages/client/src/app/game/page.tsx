@@ -1,8 +1,17 @@
 import { loadDictionary } from "@/actions/server";
-import Setup from "./_components/setup";
+import InfiniteGrid from "@/_components/grid/grid";
+import Wallet from "@/_components/wallet/wallet";
 
 export default async function Home() {
   const dictionary = loadDictionary();
 
-  return <Setup dictionary={dictionary} />;
+  return <Game dictionary={dictionary} />;
+}
+function Game({ dictionary }: { dictionary: Set<string> }) {
+  return (
+    <div className="h-full w-full">
+      <Wallet />
+      <InfiniteGrid dictionary={dictionary} />
+    </div>
+  );
 }

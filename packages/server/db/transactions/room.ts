@@ -47,15 +47,16 @@ export async function startGame(roomCode: string) {
 }
 
 async function distribute(roomCode: string) {
-  // TODO Distribute tiles to each player
   const roomSockets = await ioSocket.in(roomCode).fetchSockets();
   const numUsers = roomSockets.length;
   let numLetters: number;
 
   switch (true) {
-    // case numUsers < 2:
-    //   // TODO error
-    //   break;
+    case numUsers < 2:
+      throw new TRPCError({
+        message: "room has less than 2 players",
+        code: "BAD_REQUEST",
+      });
     case numUsers >= 1 && numUsers <= 4:
       numLetters = 3;
       break;
@@ -66,8 +67,10 @@ async function distribute(roomCode: string) {
       numLetters = 11;
       break;
     default:
-      //error
-      break;
+      throw new TRPCError({
+        message: "room can only hold up to 8 players",
+        code: "BAD_REQUEST",
+      });
   }
 
   roomSockets.forEach(async (sock) => {
@@ -83,7 +86,7 @@ export async function getRoomByRoomCode(roomCode: string) {
     .lean()
     .orFail(() => {
       throw new TRPCError({
-        code: 'NOT_FOUND',
+        code: "NOT_FOUND",
         message: `Room with code ${roomCode} not found`,
       });
     });
@@ -105,7 +108,7 @@ export async function addUserToRoom(userId: string, roomCode: string) {
     .lean()
     .orFail(() => {
       throw new TRPCError({
-        code: 'NOT_FOUND',
+        code: "NOT_FOUND",
         message: `Room with code ${roomCode} not found`,
       });
     });

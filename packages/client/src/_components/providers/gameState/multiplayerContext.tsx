@@ -163,7 +163,6 @@ export function CreateMultiplayerContext(): GameStateContextType {
 
   //Adds a tile from wallet to board
   const addTile = (letter: string, gridPos: Position) => {
-    //TODO enable swapping grid and wallet tiles
     if (wallet.includes(letter) && !(gridPos.toString() in board)) {
       setBoard((prev) => {
         return {

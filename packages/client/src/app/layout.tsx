@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import GameModeProvider from "@/_components/providers/gameMode";
-//TODO move components to folder near where they are used
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

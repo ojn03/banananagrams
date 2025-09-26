@@ -1,5 +1,5 @@
 import { DropData } from "@/types";
-import { DumpIcon } from "./svgs";
+import { DumpIcon } from "@/_components/svgs";
 import useGameStateContext from "@/hooks/gameState";
 
 export default function Dump() {

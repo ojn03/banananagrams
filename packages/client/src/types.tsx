@@ -78,7 +78,6 @@ export type BanananagramsSocket = Socket<SocketEvents>;
  * Interface representing the possible events that the server can emit to the client.
  */
 export interface SocketEvents {
-  //TODO create socket type
   peel: (payload: { user: string; roomCode: string }) => void;
   joinRoom: (payload: { user: string; roomCode: string }) => void; // MAYBE do this through http route instead
   roomUpdated: (room: Room) => void;

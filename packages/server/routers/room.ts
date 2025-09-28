@@ -8,7 +8,6 @@ import { router, publicProcedure } from "@/trpc";
 import {
   isString,
   validateAddUserToRoomInput,
-  validateCreateRoomInput,
 } from "@/validators";
 import { ioSocket } from "@/index";
 import { TRPCError } from "@trpc/server";
@@ -39,13 +38,13 @@ const roomRouter = router({
   }),
 
   createRoom: publicProcedure
-    .input(validateCreateRoomInput)
+    .input(isString)
     .mutation(async (opts) => {
       const {
-        input: { roomName, userId },
+        input:  userId ,
       } = opts;
 
-      const newRoom = await createRoom(roomName, userId);
+      const newRoom = await createRoom(userId);
       return newRoom;
     }),
 

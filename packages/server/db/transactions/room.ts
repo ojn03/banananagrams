@@ -6,7 +6,7 @@ import { TRPCError } from "@trpc/server";
 
 //MAYBE implement atomic transactions
 
-export async function createRoom(roomName: string, userId: string) {
+export async function createRoom(userId: string) {
   const room_code = Math.floor(Math.random() * 1000000)
     .toString()
     .padStart(6, "0");
@@ -15,7 +15,6 @@ export async function createRoom(roomName: string, userId: string) {
   await getUserById(userId);
 
   await roomModel.create({
-    name: roomName,
     users: [userId],
     host: userId,
     room_code,
@@ -58,7 +57,7 @@ async function distribute(roomCode: string) {
         code: "BAD_REQUEST",
       });
     case numUsers >= 1 && numUsers <= 4:
-      numLetters = 3;
+      numLetters = 21;
       break;
     case numUsers >= 5 && numUsers <= 6:
       numLetters = 15;

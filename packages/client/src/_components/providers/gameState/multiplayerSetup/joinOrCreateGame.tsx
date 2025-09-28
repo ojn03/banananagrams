@@ -29,10 +29,7 @@ export function JoinOrCreateRoom({ state }: { state: MultiplayerStateType; }) {
 
   async function newGame() {
     await createRoomMutation
-      .mutateAsync({
-        roomName: "someRoom", //MAYBE either remove room name or let user pick one
-        userId: user._id,
-      })
+      .mutateAsync(user._id)
       .then((room) => {
         createBankMutation.mutate(room.room_code);
         socket.emit("joinRoom", { user: user._id, roomCode: room.room_code });

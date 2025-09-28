@@ -23,6 +23,7 @@ if (!db_url) {
 mongoose.connect(db_url);
 console.log("successfully connected to mongodb");
 
+// DEV ONLY DO NOT COMMIT
 function sleep(s: number) {
   return new Promise((resolve) => setTimeout(resolve, s * 1000));
 }

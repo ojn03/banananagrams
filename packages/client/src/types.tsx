@@ -16,7 +16,6 @@ export interface User {
 
 export interface Room {
   _id: string;
-  name: string;
   room_code: string;
   host: string;
   hasBegun: boolean;

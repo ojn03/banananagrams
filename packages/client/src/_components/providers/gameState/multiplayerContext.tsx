@@ -29,7 +29,6 @@ export function CreateMultiplayerContext(): GameStateContextType {
     room_code: "",
     host: "",
     hasBegun: false,
-    name: "",
   });
 
   const dumpMutation = trpc.bank.dump.useMutation({

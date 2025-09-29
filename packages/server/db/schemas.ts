@@ -35,10 +35,6 @@ const userModel = mongoose.model<User>("user", userSchema);
 
 const roomSchema = new mongoose.Schema<Room>(
   {
-    name: {
-      type: String,
-      required: true,
-    },
     room_code: {
       type: String,
       required: true,

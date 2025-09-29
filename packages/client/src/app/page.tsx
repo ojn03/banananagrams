@@ -9,7 +9,7 @@ export default function Page() {
   const router = useRouter();
 
   return (
-    <div className="bg-neutral-300 flex flex-col h-full w-full justify-center items-center">
+    <div className="bg-neutral-300 flex flex-col h-full w-full justify-center items-center text-white">
       <button
         onClick={() => {
           setGameMode("single");

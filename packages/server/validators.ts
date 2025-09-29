@@ -72,13 +72,6 @@ export function validateAddUserToRoomInput(val: unknown) {
   });
 }
 
-export function validateCreateRoomInput(val: unknown) {
-  return validateObject<{ roomName: string; userId: string }>(val, {
-    roomName: isString,
-    userId: isValidOIDString,
-  });
-}
-
 export function validateDumpInput(val: unknown) {
   return validateObject<{ roomCode: string; letter: string }>(val, {
     roomCode: isString,

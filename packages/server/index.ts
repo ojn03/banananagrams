@@ -23,15 +23,11 @@ if (!db_url) {
 mongoose.connect(db_url);
 console.log("successfully connected to mongodb");
 
-function sleep(s: number) {
-  return new Promise((resolve) => setTimeout(resolve, s * 1000));
-}
 const appRouter = router({
   error: publicProcedure.query(() => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }),
   hello: publicProcedure.query(async () => {
-    await sleep(10);
     return "hello from server";
   }),
   bank: bankRouter,

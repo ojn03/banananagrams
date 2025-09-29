@@ -1,5 +1,5 @@
 import Image from "next/image";
-import loading from "../../../../../public/loading.webp";
+import loading from "./loading.webp";
 
 export default function Loading() {
   return (

@@ -15,6 +15,7 @@ import { trpc } from "@/utils/trpc";
 import { isSingleValidComponent } from "@/utils/gameUtils";
 
 //MAYBE look into webrtc for p2p connections
+//TODO  toast for all console statements
 export function CreateMultiplayerContext(): GameStateContextType {
   const [wallet, setWallet] = useState<string[]>([]); // MAYBE make wallet a map kinda like bank
   const [board, setBoard] = useState<Record<string, TileInfo>>({});
@@ -77,7 +78,6 @@ export function CreateMultiplayerContext(): GameStateContextType {
 
   const removeTile = (gridPos: Position) => {
     if (!(gridPos.toString() in board)) {
-      //TODO Toast
       return console.error(
         "attempting to remove inexistent position: ",
         gridPos.toString()
@@ -109,8 +109,6 @@ export function CreateMultiplayerContext(): GameStateContextType {
 
     socket.on("userWon", (winner) => {
       const isThisUser = (user._id = winner._id);
-
-      // TODO toast
       console.log(
         isThisUser
           ? "congrats, you won!"
@@ -180,7 +178,6 @@ export function CreateMultiplayerContext(): GameStateContextType {
         return prev.filter((_, index) => index !== prevIndex);
       });
     } else {
-      //TODO Toast
       console.error("letter " + letter + " does not exist in wallet");
     }
   };

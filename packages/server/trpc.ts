@@ -1,5 +1,4 @@
 import { initTRPC, TRPCError } from "@trpc/server";
-// import superjson from "superjson";
 
 // MAYBE create a context if useful
 // @see https://trpc.io/docs/context
@@ -21,13 +20,3 @@ const t = initTRPC.context<Context>().create({
  */
 export const router = t.router;
 export const publicProcedure = t.procedure
-// .use(async ({ ctx, next }) => {
-//   const resp = await next({ ctx });
-
-//   if (!resp.ok) {
-//     console.log("middleware intercepted error: ");
-//     throw new TRPCError(resp.error);
-//   }
-
-//   return resp;
-// });

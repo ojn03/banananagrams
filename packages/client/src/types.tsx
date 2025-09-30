@@ -22,12 +22,6 @@ export interface Room {
   users: User[];
 }
 
-export interface Bank {
-  _id: string;
-  room: string;
-  vault: Record<string, number>;
-}
-
 export interface DropData {
   type: string;
   data: Record<string, unknown>;
@@ -78,17 +72,14 @@ export type BanananagramsSocket = Socket<SocketEvents>;
  */
 export interface SocketEvents {
   peel: (payload: { user: string; roomCode: string }) => void;
-  joinRoom: (payload: { user: string; roomCode: string }) => void; // MAYBE do this through http route instead
+  joinRoom: (payload: { user: string; roomCode: string }) => void;
   roomUpdated: (room: Room) => void;
   addLetters: (letters: string[]) => void;
   userWon: (user: User) => void;
   error: (error: Error) => void;
 }
 
-//TODO toast notis for errors, peel, dump, etc
 //TODO add multiselect
-//MAYBE move to hooks file
-//MAYBE move gamestatecontexttype to types file
 export interface MultiplayerStateType {
   room: Room;
   setRoom: (room: Room) => void;

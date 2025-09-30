@@ -1,7 +1,6 @@
 "use client";
 import { WalletDropData } from "@/types";
 
-//MAYBE enable dragging across wallet
 // MAYBE make abstract grid and wallet tile together
 export function WalletTile({ letter, spacing }: { letter: string; spacing: number; }) {
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {

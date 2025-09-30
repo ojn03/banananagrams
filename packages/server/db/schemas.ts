@@ -1,25 +1,8 @@
 import mongoose from "mongoose";
 import { Bank, Room, User } from "@/types";
 
-/**
- *
- * user:
- * -  name
- * -  id
- *
- * room:
- * - id
- * - room-code
- * - ttl
- * - users
- * - MAYBE host
- *
- * every 24hrs delete all data that's older than a day
- */
-
-// MAYBE convert file to folder with file for each model
 // TODO move each user's board state from client to server
-
+// TODO implement ttls to delete all data related to a room after 24hrs
 const userSchema = new mongoose.Schema<User>(
   {
     name: {

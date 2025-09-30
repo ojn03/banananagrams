@@ -12,7 +12,6 @@ import { GameStateContextType } from "@/types";
 
 //TODO toast notis for errors, peel, dump, etc
 //TODO add multiselect
-//MAYBE move to hooks file
 
 export const CreateSinglePlayerContext = (): GameStateContextType => {
   const initBank = structuredClone(letters);
@@ -20,7 +19,6 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
   const [wallet, setWallet] = useState<string[]>(initialWithDrawal); // MAYBE make wallet a map kinda like bank
   const [bank, setBank] = useState<Record<string, number>>(initBank);
 
-  // MAYBE make a board class
   // TODO give each tile its own unique ID. Maybe uuid or LetterNumber. So we can delete and add specific tiles
   const [board, setBoard] = useState<Record<string, TileInfo>>({});
 
@@ -86,7 +84,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     setBank(bank);
   };
 
-  // MAYBE make peel manual. i.e user has to press space to call peel
+  // TODO make peel manual. i.e user has to press space to call peel
   useEffect(() => {
     if (isSingleValidComponent(board) && wallet.length == 0) {
       const newletters = bankWithdrawal(bank, 1);
@@ -97,7 +95,6 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
 
   //Adds a tile from wallet to board
   const addTile = (letter: string, gridPos: Position) => {
-    //TODO enable swapping grid and wallet tiles
     if (wallet.includes(letter) && !(gridPos.toString() in board)) {
       setBoard((prev) => {
         return {
@@ -116,7 +113,6 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
         return prev.filter((_, index) => index !== prevIndex);
       });
     } else {
-      //TODO Toast
       console.error("letter " + letter + " does not exist in wallet");
     }
   };
@@ -124,7 +120,6 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
   // TODO DRY
   const removeTile = (gridPos: Position) => {
     if (!(gridPos.toString() in board)) {
-      //TODO Toast
       return console.error(
         "attempting to remove inexistent position: ",
         gridPos.toString()

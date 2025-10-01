@@ -12,7 +12,7 @@ export default function InfiniteGrid({
 }: {
   dictionary: Set<string>;
 }) {
-  const { board, spacing, addTile, moveTile } = useGameStateContext();
+  const { board, spacing, addTile, moveTile, peel } = useGameStateContext();
 
   validateBoard(board, dictionary);
 
@@ -49,7 +49,6 @@ export default function InfiniteGrid({
         addTile(letter, newp);
         break;
       case "tile":
-
         const {
           x: oldX,
           y: oldY,
@@ -103,12 +102,21 @@ export default function InfiniteGrid({
 
     const handleMouseUp = () => setIsDragging(false);
 
+    const handleKeyDown = (ev: KeyboardEvent) => {
+      if (ev.key != "space") {
+        return;
+      }
+      peel();
+    };
+
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isDragging]);
 

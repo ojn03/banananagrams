@@ -84,14 +84,16 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     setBank(bank);
   };
 
-  // TODO make peel manual. i.e user has to press space to call peel
-  useEffect(() => {
-    if (isSingleValidComponent(board) && wallet.length == 0) {
+  const peel = () => {
+    const canpeel = isSingleValidComponent(board) && wallet.length == 0;
+    if (canpeel) {
       const newletters = bankWithdrawal(bank, 1);
       setWallet(wallet.concat(newletters));
       setBank(bank);
+    } else {
+      console.error("cannot peel yet");
     }
-  }, [bank, board, wallet]);
+  };
 
   //Adds a tile from wallet to board
   const addTile = (letter: string, gridPos: Position) => {
@@ -136,6 +138,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     board,
     spacing: 50,
     wallet,
+    peel,
     addTile,
     moveTile,
     dump,

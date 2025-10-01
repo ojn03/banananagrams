@@ -95,5 +95,6 @@ export interface GameStateContextType {
   moveTile: (oldPos: Position, newPos: Position) => void;
   addTile: (letter: string, pos: Position) => void;
   dump: (dto: DropData) => void;
+  peel: () => void;
   multiplayerState?: MultiplayerStateType;
 }

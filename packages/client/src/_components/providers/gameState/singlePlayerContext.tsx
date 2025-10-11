@@ -85,8 +85,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
   };
 
   const peel = () => {
-    const canpeel = isSingleValidComponent(board) && wallet.length == 0;
-    if (canpeel) {
+    if (isSingleValidComponent(board) && wallet.length == 0) {
       const newletters = bankWithdrawal(bank, 1);
       setWallet(wallet.concat(newletters));
       setBank(bank);

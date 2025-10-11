@@ -6,6 +6,7 @@ import { Position } from "@/types";
 import { validateBoard } from "@/utils/gameUtils";
 import Dump from "../dump";
 import GridCanvas from "./canvas";
+import Peel from "../peel";
 
 export default function InfiniteGrid({
   dictionary,
@@ -102,23 +103,30 @@ export default function InfiniteGrid({
 
     const handleMouseUp = () => setIsDragging(false);
 
-    const handleKeyDown = (ev: KeyboardEvent) => {
-      if (ev.key != "space") {
-        return;
-      }
-      peel();
-    };
-
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isDragging]);
+
+  // peel when space is pressed
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        event.preventDefault(); // Prevent page scroll
+        peel();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [peel]);
 
   return (
     <div
@@ -138,6 +146,7 @@ export default function InfiniteGrid({
       <div className="absolute top-1 left-1 select-none">
         {pos.x},{pos.y}
         <Dump />
+        <Peel />
       </div>
     </div>
   );

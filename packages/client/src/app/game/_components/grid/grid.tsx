@@ -6,13 +6,14 @@ import { Position } from "@/types";
 import { validateBoard } from "@/utils/gameUtils";
 import Dump from "../dump";
 import GridCanvas from "./canvas";
+import Peel from "../peel";
 
 export default function InfiniteGrid({
   dictionary,
 }: {
   dictionary: Set<string>;
 }) {
-  const { board, spacing, addTile, moveTile } = useGameStateContext();
+  const { board, spacing, addTile, moveTile, peel } = useGameStateContext();
 
   validateBoard(board, dictionary);
 
@@ -49,7 +50,6 @@ export default function InfiniteGrid({
         addTile(letter, newp);
         break;
       case "tile":
-
         const {
           x: oldX,
           y: oldY,
@@ -112,6 +112,22 @@ export default function InfiniteGrid({
     };
   }, [isDragging]);
 
+  // peel when space is pressed
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        event.preventDefault(); // Prevent page scroll
+        peel();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [peel]);
+
   return (
     <div
       onDragOver={(e) => e.preventDefault()}
@@ -130,6 +146,7 @@ export default function InfiniteGrid({
       <div className="absolute top-1 left-1 select-none">
         {pos.x},{pos.y}
         <Dump />
+        <Peel />
       </div>
     </div>
   );

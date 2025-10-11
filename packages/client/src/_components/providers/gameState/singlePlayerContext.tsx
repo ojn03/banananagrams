@@ -1,7 +1,7 @@
 "use client";
 
 import { DropData, Position, TileDropData, TileInfo } from "@/types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import letters from "@/defaultLetters";
 import {
   bankSize,
@@ -84,14 +84,15 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     setBank(bank);
   };
 
-  // TODO make peel manual. i.e user has to press space to call peel
-  useEffect(() => {
+  const peel = () => {
     if (isSingleValidComponent(board) && wallet.length == 0) {
       const newletters = bankWithdrawal(bank, 1);
       setWallet(wallet.concat(newletters));
       setBank(bank);
+    } else {
+      console.error("cannot peel yet");
     }
-  }, [bank, board, wallet]);
+  };
 
   //Adds a tile from wallet to board
   const addTile = (letter: string, gridPos: Position) => {
@@ -136,6 +137,7 @@ export const CreateSinglePlayerContext = (): GameStateContextType => {
     board,
     spacing: 50,
     wallet,
+    peel,
     addTile,
     moveTile,
     dump,

@@ -116,14 +116,12 @@ export function CreateMultiplayerContext(): GameStateContextType {
       );
     });
 
-    // MAYBE make peel manual. i.e user has to press space to call peel
-
     return () => {
       socketRef.current?.disconnect();
     };
   }, [serverURL]);
 
-  useEffect(() => {
+  const peel = () => {
     const canpeel = isSingleValidComponent(board) && wallet.length == 0;
     if (canpeel) {
       //TODO ensure socket is available
@@ -131,8 +129,10 @@ export function CreateMultiplayerContext(): GameStateContextType {
         user: user._id,
         roomCode: room.room_code,
       });
+    } else {
+      console.error("cannot peel yet");
     }
-  });
+  };
 
   const moveTile = (oldPos: Position, newPos: Position) => {
     const prevPositionString = `${oldPos.x},${oldPos.y}`;
@@ -189,7 +189,7 @@ export function CreateMultiplayerContext(): GameStateContextType {
     moveTile,
     addTile,
     wallet,
-
+    peel,
     multiplayerState: {
       user,
       setUser,

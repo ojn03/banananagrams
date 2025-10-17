@@ -62,14 +62,14 @@ export function CreateMultiplayerContext(): GameStateContextType {
             `letter ${letter} cannot be dumped as it does not exist in wallet`
           );
         }
+
+        //FIXME make changes atomic so that if API call fails, wallet changes can be undone
+        const letterIndex = wallet.findIndex((l) => l == letter);
+        wallet.splice(letterIndex, 1);
+        setWallet([...wallet]);
         dumpMutation
           .mutateAsync({ roomCode: room.room_code, letter })
-          .then(() => {
-            const letterIndex = wallet.findIndex((l) => l == letter);
-            wallet.splice(letterIndex, 1);
-          })
           .catch((e) => console.error(e));
-
         break;
       default:
         return console.error("unknown drop type");

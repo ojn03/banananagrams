@@ -65,7 +65,7 @@ ioSocket.on("connection", (socket) => {
     }
   });
 
-  socket.on("peel", async (payload) => {
+  socket.on("peelRequest", async (payload) => {
     try {
       await peel(payload.roomCode, payload.user);
     } catch (error) {

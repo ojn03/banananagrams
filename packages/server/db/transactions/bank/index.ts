@@ -45,7 +45,7 @@ export async function peel(roomCode: string, userID: string) {
   const letters = await withdraw(roomCode, sockets.length);
 
   sockets.forEach((sock, i) => {
-    sock.emit("addLetters", [letters[i]]);
+    sock.emit("peelResponse", [letters[i]]);
   });
 
   return;

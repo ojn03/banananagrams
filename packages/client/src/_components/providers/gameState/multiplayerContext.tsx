@@ -41,6 +41,9 @@ export function CreateMultiplayerContext(): GameStateContextType {
     },
   });
 
+  const dumpAudio = new Audio("/dump.mp3");
+  dumpAudio.volume = 0.5;
+
   const dump = (dto: DropData) => {
     const letter = dto.data.letter as string;
 
@@ -52,7 +55,8 @@ export function CreateMultiplayerContext(): GameStateContextType {
         dumpMutation
           .mutateAsync({ roomCode: room.room_code, letter })
           .then(() => {
-            removeTile(new Position(x, y));
+            removeBoardTile(new Position(x, y));
+            dumpAudio.play();
           })
           .catch((e) => console.error(e));
         break;
@@ -64,11 +68,12 @@ export function CreateMultiplayerContext(): GameStateContextType {
         }
 
         //FIXME make changes atomic so that if API call fails, wallet changes can be undone
-        const letterIndex = wallet.findIndex((l) => l == letter);
-        wallet.splice(letterIndex, 1);
-        setWallet([...wallet]);
         dumpMutation
           .mutateAsync({ roomCode: room.room_code, letter })
+          .then(() => {
+            removeWalletTile(letter);
+            dumpAudio.play();
+          })
           .catch((e) => console.error(e));
         break;
       default:
@@ -76,7 +81,15 @@ export function CreateMultiplayerContext(): GameStateContextType {
     }
   };
 
-  const removeTile = (gridPos: Position) => {
+  const removeWalletTile = (letter: string) => {
+    setWallet((prev) => {
+      const letterIndex = prev.findIndex((l) => l == letter);
+      prev.splice(letterIndex, 1);
+      return prev;
+    });
+  };
+
+  const removeBoardTile = (gridPos: Position) => {
     if (!(gridPos.toString() in board)) {
       return console.error(
         "attempting to remove inexistent position: ",
@@ -90,12 +103,20 @@ export function CreateMultiplayerContext(): GameStateContextType {
     });
   };
 
+  const peelAudio = new Audio("/peel.mp3");
+  peelAudio.volume = 0.5;
+
   useEffect(() => {
     socketRef.current = io(serverURL);
     const socket = socketRef.current;
 
     socket.on("roomUpdated", (newRoom) => {
       setRoom({ ...newRoom });
+    });
+
+    socket.on("peelResponse", (letters) => {
+      setWallet((prev) => prev.concat(letters));
+      peelAudio.play();
     });
 
     //TODO better socket errors
@@ -125,7 +146,7 @@ export function CreateMultiplayerContext(): GameStateContextType {
     const canpeel = isSingleValidComponent(board) && wallet.length == 0;
     if (canpeel) {
       //TODO ensure socket is available
-      socketRef?.current?.emit("peel", {
+      socketRef?.current?.emit("peelRequest", {
         user: user._id,
         roomCode: room.room_code,
       });

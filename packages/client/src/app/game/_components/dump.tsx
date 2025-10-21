@@ -1,3 +1,4 @@
+"use client";
 import { DropData } from "@/types";
 import { DumpIcon } from "@/_components/svgs";
 import useGameStateContext from "@/hooks/gameState";
